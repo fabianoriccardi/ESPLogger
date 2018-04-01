@@ -1,0 +1,6 @@
+Pin				KEYWORD1
+Pins			KEYWORD1
+newPinDef		KEYWORD1
+baselineData	KEYWORD2
+touched			KEYWORD2
+setThresholds	KEYWORD2
