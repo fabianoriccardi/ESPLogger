@@ -24,6 +24,8 @@ void somethingHappening(){
   somethingHappens.attach(eventFrequency, somethingHappening);
 }
 
+
+
 void setup() {
   Serial.begin(115200);
   while(!Serial);
@@ -36,23 +38,36 @@ void setup() {
   }else{
     Serial.println("Done!");
   }
-
+  
   //loggg.setSizeLimit(100,false);
-  loggg.setSizeLimitPerPacket(60);
+  loggg.setSizeLimitPerChunk(60);
+  loggg.setFlusherCallback(senderHelp);
   somethingHappens.attach(eventFrequency, somethingHappening);
 }
 
 // in millisecond
 int period = 30000;
 
-int nextTime = 0;
+unsigned int nextTime = 0;
 
 // Pensando allo smartifier, possiamo dire che 
 // il main loop è il controller
 void loop() {
   if (millis()>nextTime){
     nextTime+=period;
-    loggg.sendAll2();
+    loggg.flush();
   }
 }
 
+void senderHelp(char* buffer, int n){
+  int index=0;
+      // Check if there is another string to print
+      while(index<n && strlen(&buffer[index])>0){
+        Serial.print("---");
+        int bytePrinted=Serial.print(&buffer[index]);
+        Serial.println("---");
+        //Serial.println(String("Ho stampato:") + bytePrinted + "byte");
+        // +1, the '\0' is processed
+        index += bytePrinted+1;
+      }
+}

@@ -14,9 +14,10 @@ class Logger{
   Logger(String file, int debugVerbosity = 1): 
           filePath(file),
           sizeLimit(1000),
-          sizeLimitPerPacket(100),
           strictLimit(true),
-          debugVerbosity(debugVerbosity){
+          sizeLimitPerChunk(100),
+          debugVerbosity(debugVerbosity),
+          flusher([](char*,int){Serial.println("Default flusher, please define your own flusher");}){
     
   };
 
@@ -32,12 +33,18 @@ class Logger{
    * (Remember that the data has to live in RAM for a moment before they are sent
    * over the network)
    */
-  void setSizeLimitPerPacket(int size);
+  void setSizeLimitPerChunk(int size);
+
+  /**
+   * Sets the send chunk callback.
+   */
+  void setFlusherCallback(void (*foo)(char*, int) );
 
   /** 
-   * Append a line to the target file 
+   * Append a line to the target file. 
+   * Return true if the record is succefully stored, otherwise false.
    */
-  void append(String message,bool timestamp=true);
+  bool append(String message,bool timestamp=true);
 
   /**
    * Delete the current log file
@@ -47,23 +54,26 @@ class Logger{
   /**
    * Send all the data through the network
    */
-  void sendAll();
-
-  /**
-   * 
-   */
-  void sendAll2();
+  void flush();
   
   private:
   String filePath;
 
   /**
-   * Measured in bytes
+   * Maximum dimension of log size.
    */
   unsigned int sizeLimit;
-  unsigned int sizeLimitPerPacket;
 
+  /**
+   * Strict limimt than respect the file dimension.
+   */
   bool strictLimit;
+
+  /**
+   * Physical dimension of a single chunk, in byte
+   * This limit is ALWAYS respected!
+   */
+  unsigned int sizeLimitPerChunk;
 
   /**
    * Print
@@ -72,6 +82,15 @@ class Logger{
    * 2 - all the messages
    */
   int debugVerbosity;
+
+  /**
+   * Callback called during the flush function. When a chunk is filled,
+   * it is passed to this callback. The first paramenter is the buffer
+   * containing a bunch of records, '\0' separated. The second parameter 
+   * is the logic size of the buffer (i.e. the content's length, '\0' included).
+   */
+  void (*flusher)(char*, int);
+
 };
 
 #endif // END LOGGER_H

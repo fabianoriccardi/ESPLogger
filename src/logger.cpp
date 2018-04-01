@@ -5,12 +5,16 @@ void Logger::setSizeLimit(int size, bool strict){
   strictLimit=strict;
 }
 
-void Logger::setSizeLimitPerPacket(int size){
-  sizeLimitPerPacket=size;
+void Logger::setSizeLimitPerChunk(int size){
+  sizeLimitPerChunk=size;
 }
 
-void Logger::append(String message, bool timestamp){
-  int total=0;
+void Logger::setFlusherCallback(void (*callback)(char*, int)){
+  flusher=callback;
+}
+
+bool Logger::append(String message, bool timestamp){
+  unsigned int total=0;
   
   if(timestamp){
     int now=millis();
@@ -26,73 +30,47 @@ void Logger::append(String message, bool timestamp){
     total += 2;
   }
 
-  if(debugVerbosity) Serial.println(String("Message to record: ---") + message + "---");
+  if(debugVerbosity) Serial.println(String("Recording message: ___") + message + "___");
   
   File f=SPIFFS.open(filePath,"a");
-  if(f!=NULL){
+  if(f){
     total += f.size();
     if (debugVerbosity>1) Serial.println(String(total) + "/" + sizeLimit + "bytes occupied");
     if(total>sizeLimit){
       f.close();
       if (debugVerbosity>0) Serial.println("You have reached the maximum file length, the record can't be stored. ");
-      return ;
+      return false;
     }
     f.println(message);
     f.close();
+    return true;
   }else{
     if (debugVerbosity>0) Serial.println("Opening log file error!");
   }
+  return false;
 }
 
 void Logger::reset(){
   SPIFFS.remove(filePath);
 }
 
-void Logger::sendAll(){
-  if(debugVerbosity>1) Serial.println("Flushing the log file..");
-  File f=SPIFFS.open(filePath,"r");
-  String line;
-  while(f.available()){
-    line=f.readStringUntil('\n');
-    if(line!=""||line!="\n"){
-      Serial.println(line);
-    }
-  }
-  f.close();
-  SPIFFS.remove(filePath);
-  if(debugVerbosity>1) Serial.println("End of flushing the log file!");
-}
-
-
-void senderHelp(char* buffer, int n){
-  int index=0;
-      // Check if there is another string to print
-      while(index<n && strlen(&buffer[index])>0){
-        Serial.print("---");
-        int bytePrinted=Serial.print(&buffer[index]);
-        Serial.println("---");
-        //Serial.println(String("Ho stampato:") + bytePrinted + "byte");
-        // +1, the '\0' is processed
-        index += bytePrinted+1;
-      }
-}
-void Logger::sendAll2(){
-  if(debugVerbosity>1) Serial.println("Flushing the log file..");
+void Logger::flush(){
+  if(debugVerbosity>1) Serial.println("Flushing the log file...");
   
   // First step: fill the buffer with a chunk
   File f=SPIFFS.open(filePath,"r");
-  if(f!=NULL){
+  if(f){
     String line;
-    char* buffer = (char*) malloc(sizeLimitPerPacket);
+    char* buffer = (char*) malloc(sizeLimitPerChunk);
 
     int chunkCount = 0;
     bool bufferFull = false;
     while(1){
       Serial.println(String(":::::::::::::::::::::::::::") + chunkCount);
       chunkCount++;
-      Serial.println(":::::::::::::::First step");
+      Serial.println(":::::::::::::::First step: Chunk loading...");
       
-      int nBuffer = 0;
+      unsigned int nBuffer = 0;
       bool doRead = true;
       if(bufferFull){
         // This means that we have a "pending" line, no need to read from file
@@ -109,12 +87,13 @@ void Logger::sendAll2(){
         
         // l contains the number of byte required by a line (we have to keep into account the '\0')
         // In this case, +1 isn't needed because the _line_ contains the useless '\r'
-        int len=line.length();
-        if(len+nBuffer>sizeLimitPerPacket){
-          Serial.println("Buffer Full");
+        unsigned int len=line.length();
+        if(len+nBuffer>sizeLimitPerChunk){
+          if(debugVerbosity>1) Serial.println(String("Chunk buffer is almost full: ") + nBuffer + "/" + sizeLimitPerChunk + "byte, cannot store another message, it's time to send..");
           bufferFull=true;
         }else{
-          Serial.println(String("Line length: ") + len + " ###" + line.c_str() + "###");
+          //Serial.print(String("Line length: ") + len + " ");
+          Serial.println(String("###") + line.c_str() + "###");
           strcpy(&buffer[nBuffer], line.c_str());
           // replace the '\r' with '\0'
           buffer[nBuffer+len-1]='\0';
@@ -128,16 +107,17 @@ void Logger::sendAll2(){
       }
   
       // Second step: send chunk
-      Serial.println(":::::::::::::::Second step");
-      senderHelp(buffer,nBuffer);
+      Serial.println(":::::::::::::::Second step: Chunk flushing...");
+      flusher(buffer,nBuffer);
     }
     
     // Free the memory buffer
     free(buffer);
     f.close();
     SPIFFS.remove(filePath);
+  }else{
+     if (debugVerbosity>0) Serial.println("Opening log file error!");
   }
-  
   
   if(debugVerbosity>1) Serial.println("End of flushing the log file!");
 }
