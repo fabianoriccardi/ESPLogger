@@ -9,7 +9,7 @@ void Logger::setSizeLimitPerChunk(int size){
   sizeLimitPerChunk=size;
 }
 
-void Logger::setFlusherCallback(void (*callback)(char*, int)){
+void Logger::setFlusherCallback(bool (*callback)(char*, int)){
   flusher=callback;
 }
 
@@ -54,7 +54,7 @@ void Logger::reset(){
   SPIFFS.remove(filePath);
 }
 
-void Logger::flush(){
+void Logger::flush(bool oneRecordPerChunk){
   if(debugVerbosity>1) Serial.println("Flushing the log file...");
   
   // First step: fill the buffer with a chunk
@@ -99,6 +99,8 @@ void Logger::flush(){
           buffer[nBuffer+len-1]='\0';
           nBuffer += len;
         }
+        
+        if(oneRecordPerChunk) break;
       }
       
       if(nBuffer == 0){
@@ -108,7 +110,7 @@ void Logger::flush(){
   
       // Second step: send chunk
       Serial.println(":::::::::::::::Second step: Chunk flushing...");
-      flusher(buffer,nBuffer);
+      bool res=flusher(buffer,nBuffer);
     }
     
     // Free the memory buffer

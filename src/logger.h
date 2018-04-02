@@ -17,7 +17,10 @@ class Logger{
           strictLimit(true),
           sizeLimitPerChunk(100),
           debugVerbosity(debugVerbosity),
-          flusher([](char*,int){Serial.println("Default flusher, please define your own flusher");}){
+          flusher([](char*,int){
+          					Serial.println("Default flusher, please define your own flusher"); 
+          					return true;
+          				}){
     
   };
 
@@ -38,7 +41,7 @@ class Logger{
   /**
    * Sets the send chunk callback.
    */
-  void setFlusherCallback(void (*foo)(char*, int) );
+  void setFlusherCallback(bool (*foo)(char*, int) );
 
   /** 
    * Append a line to the target file. 
@@ -52,9 +55,10 @@ class Logger{
   void reset();
   
   /**
-   * Send all the data through the network
+   * Send all the data through the network.
+   * The parameter allows to force the sending a record per chunk
    */
-  void flush();
+  void flush(bool oneRecordPerChunk=false);
   
   private:
   String filePath;
@@ -89,7 +93,7 @@ class Logger{
    * containing a bunch of records, '\0' separated. The second parameter 
    * is the logic size of the buffer (i.e. the content's length, '\0' included).
    */
-  void (*flusher)(char*, int);
+  bool (*flusher)(char*, int);
 
 };
 

@@ -55,19 +55,20 @@ unsigned int nextTime = 0;
 void loop() {
   if (millis()>nextTime){
     nextTime+=period;
-    loggg.flush();
+    loggg.flush(true);
   }
 }
 
-void senderHelp(char* buffer, int n){
+bool senderHelp(char* buffer, int n){
   int index=0;
-      // Check if there is another string to print
-      while(index<n && strlen(&buffer[index])>0){
-        Serial.print("---");
-        int bytePrinted=Serial.print(&buffer[index]);
-        Serial.println("---");
-        //Serial.println(String("Ho stampato:") + bytePrinted + "byte");
-        // +1, the '\0' is processed
-        index += bytePrinted+1;
-      }
+  // Check if there is another string to print
+  while(index<n && strlen(&buffer[index])>0){
+    Serial.print("---");
+    int bytePrinted=Serial.print(&buffer[index]);
+    Serial.println("---");
+    //Serial.println(String("Ho stampato:") + bytePrinted + "byte");
+    // +1, the '\0' is processed
+    index += bytePrinted+1;
+  }
+  return true;
 }
