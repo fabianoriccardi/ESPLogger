@@ -1,9 +1,7 @@
-#include "FS.h"
-#include "Ticker.h"
-#include "logger.h"
+#include <Ticker.h>
+#include <logger.h>
 
-Logger loggg("/log/mylog.log");
-
+Logger loggg("/log/mylog.log",1);
 
 /** 
  * Event generation and management 
@@ -23,7 +21,7 @@ void somethingHappening(){
   
   // counter is a multiple of 3, log it!
   if(counter%3==0){
-    //Serial.println(String("Event happens: ") + counter);
+    Serial.println(String("Oh, ->") + counter + "<- is just happend");
     loggg.append(String("val:") + counter);
   }
   somethingHappens.attach(eventFrequency, somethingHappening);
@@ -42,8 +40,6 @@ void setup() {
     Serial.println("Done!");
   }
   
-  loggg.setSizeLimit(1000,false);
-  loggg.setSizeLimitPerChunk(60);
   loggg.setFlusherCallback(senderHelp);
   somethingHappens.attach(eventFrequency, somethingHappening);
 }
@@ -74,7 +70,6 @@ bool senderHelp(char* buffer, int n){
     Serial.print("---");
     int bytePrinted=Serial.print(&buffer[index]);
     Serial.println("---");
-    //Serial.println(String("Ho stampato:") + bytePrinted + "byte");
     // +1, the '\0' is processed
     index += bytePrinted+1;
   }

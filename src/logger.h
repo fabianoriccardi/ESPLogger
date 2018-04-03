@@ -3,6 +3,9 @@
 
 #include <Arduino.h>
 #include <FS.h>
+#ifdef ESP32
+#include <SPIFFS.h>
+#endif
 
 /**
  * This class is responsible for a single log file.
@@ -103,6 +106,10 @@ class Logger{
    * it is passed to this callback. The first paramenter is the buffer
    * containing a bunch of records, '\0' separated. The second parameter 
    * is the logic size of the buffer (i.e. the content's length, '\0' included).
+   * This fucntion returns a boolean: true means that the chunk was correclty 
+   * sent over the network (or properly managed by the user), false means that 
+   * there was an error, so the chunk should be preserved for future re-sending, moreover,
+   * returning false stops the flushing function.
    */
   bool (*flusher)(char*, int);
 

@@ -1,14 +1,12 @@
-#include "FS.h"
-#include "Ticker.h"
-#include "logger.h"
-#include "logger_routine.h"
+#include <logger.h>
+#include <logger_routine.h>
 
 // in second
-const period = 30;
+const int period = 30;
 // Path where the log is placed
 const String filepath = "/log/mylog.log";
 
-Logger loggg("/log/mylog.log");
+Logger loggg("/log/mylog.log", 2);
 
 // This class takes care of flushing the log file every period 
 LoggerRoutine logRun(loggg, period);
@@ -41,9 +39,9 @@ void somethingHappening(){
 void setup() {
   Serial.begin(115200);
   while(!Serial);
-
+  Serial.println(String("SDK version: ") + ESP.getSdkVersion());
   Serial.println("Logger test booting.. ");
-
+  
   Serial.print("Filesystem initialization... ");
   if(!SPIFFS.begin()){
     Serial.println("Error in starting file system");
@@ -67,15 +65,28 @@ void loop() {}
  * replace this behaviour with a wireless connection or whatever function. 
  */
 bool senderHelp(char* buffer, int n){
-  int index=0;
-  // Check if there is another string to print
-  while(index<n && strlen(&buffer[index])>0){
-    Serial.print("---");
-    int bytePrinted=Serial.print(&buffer[index]);
-    Serial.println("---");
-    //Serial.println(String("Ho stampato:") + bytePrinted + "byte");
-    // +1, the '\0' is processed
-    index += bytePrinted+1;
+  static int failPacketCounter = 0;
+  static int failPacket=random(3,5);
+
+  // This part is the example about the management of sending failure.
+  // The failure is "randomic"
+  if(failPacketCounter==failPacket){
+    failPacket=random(3,5);
+    failPacketCounter = 0;
+    Serial.println(String("Sending chunk failed. Setting the next send failure between: ") + failPacket + " chunks");
+    return false;
+  }else{
+    int index=0;
+    // Check if there is another string to print
+    while(index<n && strlen(&buffer[index])>0){
+      Serial.print("---");
+      int bytePrinted=Serial.print(&buffer[index]);
+      Serial.println("---");
+      // +1, the '\0' is processed
+      index += bytePrinted+1;
+    }
+    
+    failPacketCounter++;
+    return true;
   }
-  return true;
 }
