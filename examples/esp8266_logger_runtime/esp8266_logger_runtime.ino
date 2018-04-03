@@ -1,8 +1,17 @@
 #include "FS.h"
 #include "Ticker.h"
 #include "logger.h"
+#include "logger_routine.h"
+
+// in second
+const period = 30;
+// Path where the log is placed
+const String filepath = "/log/mylog.log";
 
 Logger loggg("/log/mylog.log");
+
+// This class takes care of flushing the log file every period 
+LoggerRoutine logRun(loggg, period);
 
 
 /** 
@@ -21,9 +30,9 @@ int counter = 0;
 void somethingHappening(){
   counter++;
   
-  // counter is a multiple of 3, log it!
+  // counter is a multiple of 4, log it!
   if(counter%3==0){
-    //Serial.println(String("Event happens: ") + counter);
+    Serial.println(String("Oh, ->") + counter + "<- is just happend");
     loggg.append(String("val:") + counter);
   }
   somethingHappens.attach(eventFrequency, somethingHappening);
@@ -46,21 +55,11 @@ void setup() {
   loggg.setSizeLimitPerChunk(60);
   loggg.setFlusherCallback(senderHelp);
   somethingHappens.attach(eventFrequency, somethingHappening);
+  
+  logRun.begin(true);
 }
 
-// in millisecond
-int period = 30000;
-
-unsigned int nextTime = 0;
-
-// This loop is the logger controller, it decides when it's time to flush
-// You can see a more elegant management in other examples. 
-void loop() {
-  if (millis()>nextTime){
-    nextTime += period;
-    loggg.flush();
-  }
-}
+void loop() {}
 
 /**
  * Callback to support the flushing.

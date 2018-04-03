@@ -16,6 +16,7 @@ class Logger{
           sizeLimit(1000),
           strictLimit(true),
           sizeLimitPerChunk(100),
+          oneRecordPerChunk(false),
           debugVerbosity(debugVerbosity),
           flusher([](char*,int){
           					Serial.println("Default flusher, please define your own flusher"); 
@@ -39,6 +40,11 @@ class Logger{
   void setSizeLimitPerChunk(int size);
 
   /**
+   * Sets if the logger shoud prepare chunk with at most one record.
+   */
+  void setOneRecordPerChunk(bool one);
+
+  /**
    * Sets the send chunk callback.
    */
   void setFlusherCallback(bool (*foo)(char*, int) );
@@ -58,7 +64,7 @@ class Logger{
    * Send all the data through the network.
    * The parameter allows to force the sending a record per chunk
    */
-  void flush(bool oneRecordPerChunk=false);
+  void flush();
   
   private:
   String filePath;
@@ -78,6 +84,11 @@ class Logger{
    * This limit is ALWAYS respected!
    */
   unsigned int sizeLimitPerChunk;
+
+  /**
+   * Sets if the logger shoud prepare chunk with at most one record.
+   */
+  bool oneRecordPerChunk;
 
   /**
    * Print

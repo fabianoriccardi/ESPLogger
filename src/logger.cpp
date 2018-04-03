@@ -9,6 +9,10 @@ void Logger::setSizeLimitPerChunk(int size){
   sizeLimitPerChunk=size;
 }
 
+void Logger::setOneRecordPerChunk(bool one){
+  oneRecordPerChunk=one;
+}
+
 void Logger::setFlusherCallback(bool (*callback)(char*, int)){
   flusher=callback;
 }
@@ -30,7 +34,7 @@ bool Logger::append(String message, bool timestamp){
     total += 2;
   }
 
-  if(debugVerbosity) Serial.println(String("Recording message: ___") + message + "___");
+  if(debugVerbosity > 1) Serial.println(String("Recording message: ___") + message + "___");
   
   File f=SPIFFS.open(filePath,"a");
   if(f){
@@ -54,7 +58,7 @@ void Logger::reset(){
   SPIFFS.remove(filePath);
 }
 
-void Logger::flush(bool oneRecordPerChunk){
+void Logger::flush(){
   if(debugVerbosity>1) Serial.println("Flushing the log file...");
   
   // First step: fill the buffer with a chunk
@@ -66,9 +70,9 @@ void Logger::flush(bool oneRecordPerChunk){
     int chunkCount = 0;
     bool bufferFull = false;
     while(1){
-      Serial.println(String(":::::::::::::::::::::::::::") + chunkCount);
+      if(debugVerbosity > 1) Serial.println(String(":::::::::::::::::::::::::::") + chunkCount);
       chunkCount++;
-      Serial.println(":::::::::::::::First step: Chunk loading...");
+      if(debugVerbosity > 1) Serial.println(":::::::::::::::First step: Chunk loading...");
       
       unsigned int nBuffer = 0;
       bool doRead = true;
@@ -92,8 +96,7 @@ void Logger::flush(bool oneRecordPerChunk){
           if(debugVerbosity>1) Serial.println(String("Chunk buffer is almost full: ") + nBuffer + "/" + sizeLimitPerChunk + "byte, cannot store another message, it's time to send..");
           bufferFull=true;
         }else{
-          //Serial.print(String("Line length: ") + len + " ");
-          Serial.println(String("###") + line.c_str() + "###");
+          if(debugVerbosity > 1) Serial.println(String("###") + line.c_str() + "###");
           strcpy(&buffer[nBuffer], line.c_str());
           // replace the '\r' with '\0'
           buffer[nBuffer+len-1]='\0';
@@ -104,12 +107,12 @@ void Logger::flush(bool oneRecordPerChunk){
       }
       
       if(nBuffer == 0){
-        Serial.println("No more data to send");
+        if(debugVerbosity > 1) Serial.println("No more data to send");
         break;
       }
   
       // Second step: send chunk
-      Serial.println(":::::::::::::::Second step: Chunk flushing...");
+      if(debugVerbosity > 1) Serial.println(":::::::::::::::Second step: Chunk flushing...");
       bool res=flusher(buffer,nBuffer);
     }
     
