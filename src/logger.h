@@ -32,15 +32,15 @@ class Logger{
    * Impose a limit the log file.
    * This is very important to avoid the memory congestion. 
    */
-  void setSizeLimit(int size, bool strict);
+  void setSizeLimit(unsigned int size, bool strict);
 
   /**
-   * Set the maximum byte that can be carried on a single packet.
-   * Useful in case your protocol is limited or in case of few RAM available
-   * (Remember that the data has to live in RAM for a moment before they are sent
+   * Set the maximum byte that can be carried on a single chunk.
+   * Useful in case of few RAM available (remember that the data 
+   * have to live in RAM for a moment before they are sent
    * over the network)
    */
-  void setSizeLimitPerChunk(int size);
+  void setSizeLimitPerChunk(unsigned int size);
 
   /**
    * Sets if the logger shoud prepare chunk with at most one record.
@@ -48,7 +48,7 @@ class Logger{
   void setOneRecordPerChunk(bool one);
 
   /**
-   * Sets the send chunk callback.
+   * Sets the callback used during the flushing.
    */
   void setFlusherCallback(bool (*foo)(char*, int) );
 
@@ -56,16 +56,15 @@ class Logger{
    * Append a line to the target file. 
    * Return true if the record is succefully stored, otherwise false.
    */
-  bool append(String message,bool timestamp=true);
+  bool append(String message, bool timestamp=true);
 
   /**
-   * Delete the current log file
+   * Delete the current log file.
    */
   void reset();
   
   /**
-   * Send all the data through the network.
-   * The parameter allows to force the sending a record per chunk
+   * Send all the data through the callback function.
    */
   void flush();
   
@@ -73,18 +72,18 @@ class Logger{
   String filePath;
 
   /**
-   * Maximum dimension of log size.
+   * Maximum dimension of log size. It includes the terminator chars.
    */
   unsigned int sizeLimit;
 
   /**
-   * Strict limimt than respect the file dimension.
+   * Strict limit with respect to the file dimension.
    */
   bool strictLimit;
 
   /**
    * Physical dimension of a single chunk, in byte
-   * This limit is ALWAYS respected!
+   * This limit is ALWAYS respected! It includes the terminator chars.
    */
   unsigned int sizeLimitPerChunk;
 

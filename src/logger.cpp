@@ -1,11 +1,11 @@
 #include "logger.h"
 
-void Logger::setSizeLimit(int size, bool strict){
+void Logger::setSizeLimit(unsigned int size, bool strict){
   sizeLimit=size;
   strictLimit=strict;
 }
 
-void Logger::setSizeLimitPerChunk(int size){
+void Logger::setSizeLimitPerChunk(unsigned int size){
   sizeLimitPerChunk=size;
 }
 
@@ -34,8 +34,12 @@ bool Logger::append(String message, bool timestamp){
     total += 2;
   }
 
-  if(debugVerbosity > 1) Serial.println(String("Recording message: ___") + message + "___");
+  if(message.length()+1>sizeLimitPerChunk){
+    if (debugVerbosity>0) Serial.println("@@@@ FATAL ERROR: This message is too large, it can't be neither stored nor sent due to limitation on chunk size, please change it before continue!!!");
+    return false;
+  }
   
+  // Trick to be sure that an empty file exist, and it's dimension is 0 (BUG in esp32)
   if(!SPIFFS.exists(filePath)){
     File file=SPIFFS.open(filePath,"w");
     if(file){
@@ -47,9 +51,14 @@ bool Logger::append(String message, bool timestamp){
   if(f){
     total += f.size();
     if (debugVerbosity>1) Serial.println(String(total) + "/" + sizeLimit + "bytes occupied");
+    if (debugVerbosity>1) Serial.println(String("Recording message: ___") + message + "___");
     if(total>sizeLimit){
+      if(message.length()+2>sizeLimit){
+      	if (debugVerbosity>0) Serial.println("@@@@ FATAL ERROR: This message is too large, it can't be stored nor sent due to limitation on file size, please change it before continue!!!");
+      }else{
+      	if (debugVerbosity>0) Serial.println("You have reached the maximum file length, the record can't be stored. Please flush the log.");
+      }
       f.close();
-      if (debugVerbosity>0) Serial.println("You have reached the maximum file length, the record can't be stored. ");
       return false;
     }
     f.println(message);
@@ -62,6 +71,7 @@ bool Logger::append(String message, bool timestamp){
 }
 
 void Logger::reset(){
+  if (debugVerbosity>1) Serial.println("Resetting the log file...");
   SPIFFS.remove(filePath);
 }
 
@@ -125,6 +135,9 @@ void Logger::flush(){
         unsigned int len=line.length();
         if(len+nBuffer>sizeLimitPerChunk){
           if(debugVerbosity>1) Serial.println(String("Chunk buffer is almost full: ") + nBuffer + "/" + sizeLimitPerChunk + "byte, cannot store another message, it's time to send..");
+          if(len>sizeLimitPerChunk){
+          	if (debugVerbosity>0) Serial.println(String("@@@@ FATAL ERROR: This message is too large (") + len + "/" + sizeLimitPerChunk + "), it can't be store in the chunk, please increase it's size") ;
+          } 
           bufferFull=true;
         }else{
           if(debugVerbosity > 1) Serial.print(String("###") + line.c_str() + "###");
