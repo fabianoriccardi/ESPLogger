@@ -32,7 +32,7 @@ class Logger{
    * Impose a limit the log file.
    * This is very important to avoid the memory congestion. 
    */
-  void setSizeLimit(unsigned int size, bool strict);
+  void setSizeLimit(unsigned int size, bool strict = false);
 
   /**
    * Set the maximum byte that can be carried on a single chunk.
