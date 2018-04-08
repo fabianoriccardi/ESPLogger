@@ -99,7 +99,11 @@ void saveRemainings(File& destination, File& source){
 void Logger::flush(){
   if(debugVerbosity>1) Serial.println("Flushing the log file...");
   
-  // First step: fill the buffer with a chunk
+  if(!SPIFFS.exists(filePath)){
+    if (debugVerbosity > 1) Serial.println("File doesn't exist, nothing to flush..");
+    return;
+  }
+  
   File f=SPIFFS.open(filePath,"r");
   if(f){
     bool successFlush=true;
@@ -113,6 +117,7 @@ void Logger::flush(){
     for(chunkCount = 0;;chunkCount++){
       if(debugVerbosity > 1) Serial.println(String(":::::::::::::::::::::::::::") + chunkCount);
       
+      // First step: fill the buffer with a chunk of data
       if(debugVerbosity > 1) Serial.println(":::::::::::::::First step: Chunk loading...");
       
       nBuffer = 0;
