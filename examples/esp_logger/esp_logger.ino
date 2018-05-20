@@ -33,13 +33,7 @@ void setup() {
 
   Serial.println("Logger test booting.. ");
 
-  Serial.print("Filesystem initialization... ");
-  if(!SPIFFS.begin()){
-    Serial.println("Error in starting file system");
-  }else{
-    Serial.println("Done!");
-  }
-  
+  loggg.begin();  
   loggg.setFlusherCallback(senderHelp);
   somethingHappens.attach(eventFrequency, somethingHappening);
 }

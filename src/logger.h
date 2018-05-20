@@ -2,10 +2,6 @@
 #define LOGGER_H
 
 #include <Arduino.h>
-#include <FS.h>
-#ifdef ESP32
-#include <SPIFFS.h>
-#endif
 
 /**
  * This class is responsible for a single log file.
@@ -14,19 +10,13 @@
 class Logger{
   public:
   
-  Logger(String file, int debugVerbosity = 1): 
-          filePath(file),
-          sizeLimit(1000),
-          strictLimit(true),
-          sizeLimitPerChunk(100),
-          oneRecordPerChunk(false),
-          debugVerbosity(debugVerbosity),
-          flusher([](char*,int){
-          					Serial.println("Default flusher, please define your own flusher"); 
-          					return true;
-          				}){
-    
-  };
+  Logger(String file, int debugVerbosity = 1);
+
+  /**
+   * Activate the Filesystem, call before starting to append or flush,
+   * return true is case of successfull init, false otherwise
+   */
+  bool begin();
 
   /**
    * Impose a limit the log file.

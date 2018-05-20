@@ -5,6 +5,10 @@
 
 #include "logger.h"
 
+/**
+ * Class for logger routine, that means an helper to manage a periodic
+ * flush of the log file.
+ */
 class LoggerRoutine{
 public:
 	LoggerRoutine(Logger& logger, float period): 

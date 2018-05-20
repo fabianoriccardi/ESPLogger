@@ -1,5 +1,10 @@
 #include "logger.h"
 
+#include <FS.h>
+#ifdef ESP32
+#include <SPIFFS.h>
+#endif
+
 void Logger::setSizeLimit(unsigned int size, bool strict){
   sizeLimit=size;
   strictLimit=strict;
@@ -213,4 +218,29 @@ void Logger::flush(){
     if (debugVerbosity>0) Serial.println("Opening log file error!");
   }
   if(debugVerbosity>1) Serial.println("End of flushing the log file!");
+}
+
+Logger::Logger(String file, int debugVerbosity): 
+          filePath(file),
+          sizeLimit(1000),
+          strictLimit(true),
+          sizeLimitPerChunk(100),
+          oneRecordPerChunk(false),
+          debugVerbosity(debugVerbosity),
+          flusher([](char*,int){
+                    Serial.println("Default flusher, please define your own flusher"); 
+                    return true;
+                  })
+{
+};
+
+bool Logger::begin(){
+  Serial.print("Filesystem initialization... ");
+  if(!SPIFFS.begin()){
+    Serial.print("Error in starting file system, you could try to format it...");
+    return false;
+  }else{
+    Serial.println("Done!");
+    return true;
+  }    
 }

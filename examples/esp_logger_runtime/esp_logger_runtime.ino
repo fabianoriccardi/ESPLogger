@@ -42,13 +42,7 @@ void setup() {
   Serial.println(String("SDK version: ") + ESP.getSdkVersion());
   Serial.println("Logger test booting.. ");
   
-  Serial.print("Filesystem initialization... ");
-  if(!SPIFFS.begin()){
-    Serial.println("Error in starting file system");
-  }else{
-    Serial.println("Done!");
-  }
-  
+  loggg.begin();
   loggg.setSizeLimit(1000,false);
   loggg.setSizeLimitPerChunk(60);
   loggg.setFlusherCallback(senderHelp);
