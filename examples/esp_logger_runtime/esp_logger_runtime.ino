@@ -1,4 +1,4 @@
-#include <logger.h>
+#include <logger_spiffs.h>
 #include <logger_routine.h>
 
 // in second
@@ -6,7 +6,7 @@ const int period = 30;
 // Path where the log is placed
 const String filepath = "/log/mylog.log";
 
-Logger loggg("/log/mylog.log", 2);
+LoggerSPIFFS loggg("/log/mylog.log", 2);
 
 // This class takes care of flushing the log file every period 
 LoggerRoutine logRun(loggg, period);

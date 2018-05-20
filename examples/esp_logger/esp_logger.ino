@@ -1,7 +1,7 @@
 #include <Ticker.h>
-#include <logger.h>
+#include <logger_spiffs.h>
 
-Logger loggg("/log/mylog.log",1);
+LoggerSPIFFS loggg("/log/mylog.log",1);
 
 /** 
  * Event generation and management 

@@ -10,13 +10,13 @@
 class Logger{
   public:
   
-  Logger(String file, int debugVerbosity = 1);
+  Logger(String file, int debugVerbosity);
 
   /**
    * Activate the Filesystem, call before starting to append or flush,
    * return true is case of successfull init, false otherwise
    */
-  bool begin();
+  virtual bool begin() = 0;
 
   /**
    * Impose a limit the log file.
@@ -46,19 +46,19 @@ class Logger{
    * Append a line to the target file. 
    * Return true if the record is succefully stored, otherwise false.
    */
-  bool append(String message, bool timestamp=true);
+  virtual bool append(String message, bool timestamp=true) = 0;
 
   /**
    * Delete the current log file.
    */
-  void reset();
+  virtual void reset() = 0;
   
   /**
    * Send all the data through the callback function.
    */
-  void flush();
+  virtual void flush() = 0;
   
-  private:
+  protected:
   String filePath;
 
   /**
