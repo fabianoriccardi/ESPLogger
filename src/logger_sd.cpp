@@ -1,11 +1,7 @@
-#include "logger_spiffs.h"
+#include "logger_sd.h"
+#include "SD.h"
 
-#include <FS.h>
-#ifdef ESP32
-#include <SPIFFS.h>
-#endif
-
-bool LoggerSPIFFS::append(String message, bool timestamp){
+bool LoggerSD::append(String message, bool timestamp){
   unsigned int total=0;
   
   if(timestamp){
@@ -28,14 +24,20 @@ bool LoggerSPIFFS::append(String message, bool timestamp){
   }
   
   // Trick to be sure that an empty file exist, and it's dimension is 0 (BUG in esp32)
-  if(!SPIFFS.exists(filePath)){
-    File file=SPIFFS.open(filePath,"w");
+  if(!SD.exists(filePath)){
+    File file=SD.open(filePath,FILE_WRITE);
     if(file){
       file.close();
     }
   }
 
-  File f=SPIFFS.open(filePath,"a");
+#ifdef ESP32
+  // In ESP32 I can use to usual notation "a" for append
+  File f=SD.open(filePath,"a");
+#elif ESP8266
+  // Note the esp8266 interprets this constant as an apped, i.e. O_TRUNC flag is not set
+  File f=SD.open(filePath, FILE_WRITE);
+#endif
   if(f){
     total += f.size();
     if (debugVerbosity>1) Serial.println(String(total) + "/" + sizeLimit + "bytes occupied");
@@ -58,9 +60,9 @@ bool LoggerSPIFFS::append(String message, bool timestamp){
   return false;
 }
 
-void LoggerSPIFFS::reset(){
+void LoggerSD::reset(){
   if (debugVerbosity>1) Serial.println("Resetting the log file...");
-  SPIFFS.remove(filePath);
+  SD.remove(filePath);
 }
 
 static void saveChunk(File& file, char* buffer, int nBuffer){
@@ -84,15 +86,43 @@ static void saveRemainings(File& destination, File& source){
   }
 }
 
-void LoggerSPIFFS::flush(){
+#ifdef ESP8266
+static bool copyFile(String source, String destination){
+  File s=SD.open(source,FILE_READ);
+  File d=SD.open(destination, FILE_WRITE | O_TRUNC);
+  if(!s){
+    if(d){
+      d.close();
+    }
+    return false;
+  }
+  if(!d){
+    if(s){
+      s.close();
+    }
+    return false;
+  }
+
+  byte buf[512];
+  while(s.available()){
+    int n=s.read(buf,512);
+    d.write(buf,n);
+  }
+  s.close();
+  d.close();
+  return true;
+}
+#endif
+
+void LoggerSD::flush(){
   if(debugVerbosity>1) Serial.println("Flushing the log file...");
   
-  if(!SPIFFS.exists(filePath)){
+  if(!SD.exists(filePath)){
     if (debugVerbosity > 1) Serial.println("File doesn't exist, nothing to flush..");
     return;
   }
   
-  File f=SPIFFS.open(filePath,"r");
+  File f=SD.open(filePath,FILE_READ);
   if(f){
     bool successFlush=true;
     String line;
@@ -162,37 +192,60 @@ void LoggerSPIFFS::flush(){
       if(chunkCount > 0){
         if(debugVerbosity > 1) Serial.println("Partial unsuccessful sending!");
         // I have to discard the successfully sent log, and save the remainings.
-        String tempFilePath = filePath+".temp";
-        File tempFile=SPIFFS.open(tempFilePath,"w");
+        // NOTE: in some FS, the filename il limited to 8.3 charcters
+        String tempFilePath = "/templog.tmp";
+#ifdef ESP32        
+        File tempFile=SD.open(tempFilePath,"w");
+#elif ESP8266
+        File tempFile=SD.open(tempFilePath, FILE_WRITE|O_TRUNC);
+#endif
         if(f){
           saveChunk(tempFile,buffer,nBuffer);
           saveRemainings(tempFile, f);
           tempFile.close();
           f.close();
           // Riordino i file
-          if(SPIFFS.remove(filePath)){
+          if(SD.remove(filePath)){
             if (debugVerbosity>1) Serial.println("The old file is deleted!");
-            if(SPIFFS.rename(tempFilePath, filePath)){
+ #ifdef ESP32
+            if(SD.rename(tempFilePath, filePath)){
+ #elif ESP8266
+            // Simulating the file rename operation: 
+            // 1. copy the old file into the new,
+            // 2. then delete the old one
+            // NOTE: this approach is heavily inefficient
+            bool success=false;
+            if(copyFile(tempFilePath,filePath)){
+              if(SD.remove(tempFilePath)){
+                success=true;
+              }else{
+                if (debugVerbosity>1) Serial.println("Delete failed");
+              }
+            }else{
+              if (debugVerbosity>1) Serial.println("Something went wrong during the copy!");
+            }
+
+            if(success){
+ #endif
               if (debugVerbosity>1) Serial.println("The temp file is moved!");
+            
             }else{
               if (debugVerbosity>0) Serial.println("The temp file wasn't moved");
             }
           }else{
             if (debugVerbosity>0) Serial.println("The temp file is NOT deleted!");
           }
-          
           return;
         }else{
           if (debugVerbosity>0) Serial.println("Writing temp log file error!");
         }
-        
       }else{
         // Nothing was sent, so I can close the file and exit from this function
         if(debugVerbosity > 1) Serial.println("Unsuccessful sending! Nothing is flushed..");
       }
     }else{
       f.close();
-      SPIFFS.remove(filePath);
+      SD.remove(filePath);
     }
 
     // Free the memory buffer
@@ -203,16 +256,29 @@ void LoggerSPIFFS::flush(){
   if(debugVerbosity>1) Serial.println("End of flushing the log file!");
 }
 
-LoggerSPIFFS::LoggerSPIFFS(String file, int debugVerbosity): Logger(file,debugVerbosity){
+LoggerSD::LoggerSD(String file, int debugVerbosity): Logger(file,debugVerbosity){
 };
 
-bool LoggerSPIFFS::begin(){
-  Serial.print("Filesystem initialization... ");
-  if(!SPIFFS.begin()){
-    Serial.print("Error in starting file system, you could try to format it...");
+bool LoggerSD::begin(){
+#ifdef ESP8266
+  Serial.println("On ESP8266 this is not implemented, because multiple init are going to fail..");
+  return false;
+#endif  
+  if(!SD.begin(16)){
+    Serial.println("Card Mount Failed");
     return false;
-  }else{
-    Serial.println("Done!");
-    return true;
-  }    
+  }
+  return true;
+}
+
+bool LoggerSD::begin(int csPin){
+#ifdef ESP8266
+  Serial.println("On ESP8266 this is not implemented, because multiple init are going to fail..");
+  return false;
+#endif  
+  if(!SD.begin(csPin)){
+    Serial.println("Card Mount Failed");
+    return false;
+  }
+  return true;
 }

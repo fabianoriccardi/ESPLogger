@@ -1,17 +1,18 @@
-#ifndef LOGGER_SPIFFS_H
-#define LOGGER_SPIFFS_H
+#ifndef LOGGER_SD_H
+#define LOGGER_SD_H
 
 #include "logger.h"
 
 /**
  * For further details look at the base class Logger
  */
-class LoggerSPIFFS : public Logger{
+class LoggerSD : public Logger{
   public:
   
-  LoggerSPIFFS(String file, int debugVerbosity = 1);
-
+  LoggerSD(String file, int debugVerbosity = 1);
+  
   bool begin();
+  bool begin(int csPin);
 
   bool append(String message, bool timestamp=true);
 
@@ -21,4 +22,4 @@ class LoggerSPIFFS : public Logger{
 
 };
 
-#endif // END LOGGER_SPIFFS_H
+#endif // END LOGGER_SD_H
