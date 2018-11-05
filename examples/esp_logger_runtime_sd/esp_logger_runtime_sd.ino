@@ -1,6 +1,7 @@
 #include <logger_sd.h>
 #include <logger_routine.h>
 
+// Required to call the File System init!
 #include "SD.h"
 
 #ifdef ESP8266 
@@ -12,12 +13,12 @@ const int csPin = 16;
 // in second
 const int period = 30;
 
-const String filepath = "/mylog.log";
+const String filepath = "/myLog.log";
 
-LoggerSD loggg(filepath, 2);
+LoggerSD myLog(filepath, 2);
 
-// This class takes care of flushing the log file every period 
-LoggerRoutine logRun(loggg, period);
+// This class takes care of flushing the myLog file every period 
+LoggerRoutine myLogRun(myLog, period);
 
 
 /** 
@@ -30,26 +31,24 @@ Ticker somethingHappens;
 // in seconds
 float eventFrequency = 1.5;
 
-// This is the variable event to log
+// This is the variable event to myLog
 int counter = 0;
 
 void somethingHappening(){
   counter++;
   
-  // counter is a multiple of 4, log it!
+  // counter is a multiple of 4, myLog it!
   if(counter%3==0){
     Serial.println(String("Oh, ->") + counter + "<- is just happend");
-    loggg.append(String("val:") + counter);
+    myLog.append(String("val:") + counter);
   }
   somethingHappens.attach(eventFrequency, somethingHappening);
 }
-File myFile;
 
 void setup() {
   Serial.begin(115200);
   while(!Serial);
-  Serial.println(String("SDK version: ") + ESP.getSdkVersion());
-  Serial.println("Logger test booting.. ");
+  Serial.println("Log on SD Example");
 
 
   Serial.print("Initializing SD card...");
@@ -60,13 +59,14 @@ void setup() {
   Serial.println("initialization done.");
 
   // Effectively working only on ESP32
-  loggg.begin(csPin);
-  loggg.setSizeLimit(1000,false);
-  loggg.setSizeLimitPerChunk(60);
-  loggg.setFlusherCallback(senderHelp);
+  myLog.begin(csPin);
+  
+  myLog.setSizeLimit(1000,false);
+  myLog.setSizeLimitPerChunk(60);
+  myLog.setFlusherCallback(senderHelp);
   somethingHappens.attach(eventFrequency, somethingHappening);
   
-  logRun.begin(true);
+  myLogRun.begin(true);
 }
 
 void loop() {}

@@ -1,7 +1,7 @@
 #include <Ticker.h>
 #include <logger_spiffs.h>
 
-LoggerSPIFFS loggg("/log/mylog.log",1);
+LoggerSPIFFS myLog("/log/mylog.log",1);
 
 /** 
  * Event generation and management 
@@ -22,7 +22,7 @@ void somethingHappening(){
   // counter is a multiple of 3, log it!
   if(counter%3==0){
     Serial.println(String("Oh, ->") + counter + "<- is just happend");
-    loggg.append(String("val:") + counter);
+    myLog.append(String("val:") + counter);
   }
   somethingHappens.attach(eventFrequency, somethingHappening);
 }
@@ -31,10 +31,10 @@ void setup() {
   Serial.begin(115200);
   while(!Serial);
 
-  Serial.println("Logger test booting.. ");
+  Serial.println("Basic log example");
 
-  loggg.begin();  
-  loggg.setFlusherCallback(senderHelp);
+  myLog.begin();  
+  myLog.setFlusherCallback(senderHelp);
   somethingHappens.attach(eventFrequency, somethingHappening);
 }
 
@@ -48,7 +48,7 @@ unsigned int nextTime = 0;
 void loop() {
   if (millis()>nextTime){
     nextTime += period;
-    loggg.flush();
+    myLog.flush();
   }
 }
 
