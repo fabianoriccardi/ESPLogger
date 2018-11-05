@@ -19,6 +19,8 @@ class LoggerSPIFFS : public Logger{
   
   void flush();
 
+  unsigned int getActualSize();
+
 };
 
 #endif // END LOGGER_SPIFFS_H

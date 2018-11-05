@@ -282,3 +282,25 @@ bool LoggerSD::begin(int csPin){
   }
   return true;
 }
+
+unsigned int LoggerSD::getActualSize(){
+  unsigned int result = 0;
+  File file;
+  // Trick to be sure that an empty file exist, and it's dimension is 0 (BUG in esp32)
+  if(!SD.exists(filePath)){
+    file=SD.open(filePath, FILE_WRITE);
+  }else{
+#ifdef ESP32
+  // In ESP32 I can use to usual notation "a" for append
+  file=SD.open(filePath,"a");
+#elif ESP8266
+  // Note the esp8266 interprets this constant as an apped, i.e. O_TRUNC flag is not set
+  file=SD.open(filePath, FILE_WRITE);
+#endif
+  }
+  if(file){
+    result=file.size();
+    file.close();
+  }
+  return result;
+}

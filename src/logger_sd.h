@@ -20,6 +20,8 @@ class LoggerSD : public Logger{
   
   void flush();
 
+  unsigned int getActualSize();
+
 };
 
 #endif // END LOGGER_SD_H

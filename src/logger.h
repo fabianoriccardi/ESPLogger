@@ -4,8 +4,7 @@
 #include <Arduino.h>
 
 /**
- * This class is responsible for a single log file.
- * This file should be access only by this class,
+ * This class is responsible for a log file.
  */
 class Logger{
   public:
@@ -57,9 +56,19 @@ class Logger{
    * Send all the data through the callback function.
    */
   virtual void flush() = 0;
+
+  /**
+   * Get actual log size.
+   */
+  virtual unsigned int getActualSize() = 0;
   
   protected:
   String filePath;
+
+  /**
+   * Actual dimension used by log file
+   */
+  unsigned int actualSize;
 
   /**
    * Maximum dimension of log size. It includes the terminator chars.

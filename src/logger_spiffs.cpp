@@ -216,3 +216,19 @@ bool LoggerSPIFFS::begin(){
     return true;
   }    
 }
+
+unsigned int LoggerSPIFFS::getActualSize(){
+  unsigned int result=0;
+  File file;
+  // Trick to be sure that an empty file exist, and it's dimension is 0 (BUG in esp32)
+  if(!SPIFFS.exists(filePath)){
+    file=SPIFFS.open(filePath,"w");
+  }else{
+    file=SPIFFS.open(filePath,"a");
+  }
+  if(file){
+    result=file.size();
+    file.close();
+  }
+  return result;
+}
