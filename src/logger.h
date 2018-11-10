@@ -19,9 +19,11 @@ class Logger{
 
   /**
    * Impose a limit the log file.
-   * This is very important to avoid the memory congestion. 
+   * This is very important to avoid the memory saturation.
+   * The param strict is used to enforce the relation
+   * actual size <= total size
    */
-  void setSizeLimit(unsigned int size, bool strict = false);
+  void setSizeLimit(unsigned int size, bool strict = true);
 
   /**
    * Set the maximum byte that can be carried on a single chunk.
@@ -45,7 +47,7 @@ class Logger{
    * Append a line to the target file. 
    * Return true if the record is succefully stored, otherwise false.
    */
-  virtual bool append(String message, bool timestamp=true) = 0;
+  virtual bool append(String message, bool timestamp = true) = 0;
 
   /**
    * Delete the current log file.
@@ -61,6 +63,11 @@ class Logger{
    * Get actual log size.
    */
   virtual unsigned int getActualSize() = 0;
+
+  /**
+   * Get maximum log dimension
+   */
+  unsigned int getSizeLimit();
   
   protected:
   String filePath;

@@ -17,6 +17,10 @@ void Logger::setFlusherCallback(bool (*callback)(char*, int)){
   flusher=callback;
 }
 
+unsigned int Logger::getSizeLimit(){
+    return sizeLimit;
+}
+
 Logger::Logger(String file, int debugVerbosity): 
           filePath(file),
           sizeLimit(1000),
@@ -25,7 +29,7 @@ Logger::Logger(String file, int debugVerbosity):
           oneRecordPerChunk(false),
           debugVerbosity(debugVerbosity),
           flusher([](char*,int){
-                    Serial.println("Default flusher, please define your own flusher"); 
+                    Serial.println("[ESP LOGGER] Default flusher, please define your own flusher"); 
                     return true;
                   })
 {

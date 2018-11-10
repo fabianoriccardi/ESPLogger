@@ -13,7 +13,7 @@ bool LoggerRoutine::begin(bool startNow){
 		ticker.attach(period, routine, this);
 		return true;
 	}else{
-		Serial.println("Period has to be greater or equal to 1s.");
+		Serial.println("[ESP LOGGER] Period has to be greater or equal to 1s.");
 		return false;
 	}
 	

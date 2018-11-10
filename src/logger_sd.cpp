@@ -19,13 +19,13 @@ bool LoggerSD::append(String message, bool timestamp){
   }
 
   if(message.length()+1>sizeLimitPerChunk){
-    if (debugVerbosity>0) Serial.println("@@@@ FATAL ERROR: This message is too large, it can't be neither stored nor sent due to limitation on chunk size, please change it before continue!!!");
+    if (debugVerbosity>0) Serial.println("@@@@ [ESP LOGGER] FATAL ERROR: This message is too large, it can't be neither stored nor sent due to limitation on chunk size, please change it before continue!!!");
     return false;
   }
   
   // Trick to be sure that an empty file exist, and it's dimension is 0 (BUG in esp32)
   if(!SD.exists(filePath)){
-    File file=SD.open(filePath,FILE_WRITE);
+    File file=SD.open(filePath, FILE_WRITE);
     if(file){
       file.close();
     }
@@ -40,13 +40,13 @@ bool LoggerSD::append(String message, bool timestamp){
 #endif
   if(f){
     total += f.size();
-    if (debugVerbosity>1) Serial.println(String(total) + "/" + sizeLimit + "bytes occupied");
-    if (debugVerbosity>1) Serial.println(String("Recording message: ___") + message + "___");
+    if (debugVerbosity>1) Serial.println(String("[ESP LOGGER] ") + total + "/" + sizeLimit + "bytes are already occupied");
+    if (debugVerbosity>1) Serial.println(String("[ESP LOGGER] Recording message: ___") + message + "___");
     if(total>sizeLimit){
       if(message.length()+2>sizeLimit){
-      	if (debugVerbosity>0) Serial.println("@@@@ FATAL ERROR: This message is too large, it can't be stored nor sent due to limitation on file size, please change it before continue!!!");
+      	if (debugVerbosity>0) Serial.println("[ESP LOGGER] @@@@ FATAL ERROR: This message is too large, it can't be stored nor sent due to limitation on file size, please change it before continue!!!");
       }else{
-      	if (debugVerbosity>0) Serial.println("You have reached the maximum file length, the record can't be stored. Please flush the log.");
+      	if (debugVerbosity>0) Serial.println("[ESP LOGGER] You have reached the maximum file length, the record can't be stored. Please flush the log.");
       }
       f.close();
       return false;
@@ -55,14 +55,15 @@ bool LoggerSD::append(String message, bool timestamp){
     f.close();
     return true;
   }else{
-    if (debugVerbosity>0) Serial.println("Opening log file error!");
+    if (debugVerbosity>0) Serial.println("[ESP LOGGER] Opening log file error!");
   }
   return false;
 }
 
 void LoggerSD::reset(){
-  if (debugVerbosity>1) Serial.println("Resetting the log file...");
+  if (debugVerbosity>1) Serial.print("[ESP LOGGER] Resetting the log file... ");
   SD.remove(filePath);
+  if (debugVerbosity>1) Serial.println("Done!");
 }
 
 static void saveChunk(File& file, char* buffer, int nBuffer){
@@ -115,10 +116,10 @@ static bool copyFile(String source, String destination){
 #endif
 
 void LoggerSD::flush(){
-  if(debugVerbosity>1) Serial.println("Flushing the log file...");
+  if(debugVerbosity>1) Serial.println("[ESP LOGGER] Flushing the log file...");
   
   if(!SD.exists(filePath)){
-    if (debugVerbosity > 1) Serial.println("File doesn't exist, nothing to flush..");
+    if (debugVerbosity > 1) Serial.println("[ESP LOGGER] File doesn't exist, nothing to flush..");
     return;
   }
   
@@ -133,10 +134,10 @@ void LoggerSD::flush(){
     int chunkCount;
     unsigned int nBuffer;
     for(chunkCount = 0;;chunkCount++){
-      if(debugVerbosity > 1) Serial.println(String(":::::::::::::::::::::::::::") + chunkCount);
+      if(debugVerbosity > 1) Serial.println(String("[ESP LOGGER] :::::::::::::::::::::::::::") + chunkCount);
       
       // First step: fill the buffer with a chunk of data
-      if(debugVerbosity > 1) Serial.println(":::::::::::::::First step: Chunk loading...");
+      if(debugVerbosity > 1) Serial.println("[ESP LOGGER] :::::::::::::::First step: Chunk loading...");
       
       nBuffer = 0;
       bool doRead = true;
@@ -157,13 +158,13 @@ void LoggerSD::flush(){
         // In this case, +1 isn't needed because the _line_ contains the useless '\r'
         unsigned int len=line.length();
         if(len+nBuffer>sizeLimitPerChunk){
-          if(debugVerbosity>1) Serial.println(String("Chunk buffer is almost full: ") + nBuffer + "/" + sizeLimitPerChunk + "byte, cannot store another message, it's time to send..");
+          if(debugVerbosity>1) Serial.println(String("[ESP LOGGER] Chunk buffer is almost full: ") + nBuffer + "/" + sizeLimitPerChunk + "byte, cannot store another message, it's time to send..");
           if(len>sizeLimitPerChunk){
-          	if (debugVerbosity>0) Serial.println(String("@@@@ FATAL ERROR: This message is too large (") + len + "/" + sizeLimitPerChunk + "), it can't be store in the chunk, please increase it's size") ;
+          	if (debugVerbosity>0) Serial.println(String("[ESP LOGGER] @@@@ FATAL ERROR: This message is too large (") + len + "/" + sizeLimitPerChunk + "), it can't be store in the chunk, please increase it's size") ;
           } 
           bufferFull=true;
         }else{
-          if(debugVerbosity > 1) Serial.print(String("###") + line.c_str() + "###");
+          if(debugVerbosity > 1) Serial.print(String("[ESP LOGGER] ###") + line.c_str() + "###");
           if(debugVerbosity > 1) Serial.println(String(" Line length: ") + line.length() + "");
           // remove the last char, that is '\r'
           line=line.substring(0,line.length()-1);
@@ -177,12 +178,12 @@ void LoggerSD::flush(){
       } // END OF WHILE - FILLING THE CHUNK
       
       if(nBuffer == 0){
-        if(debugVerbosity > 1) Serial.println("No more data to send");
+        if(debugVerbosity > 1) Serial.println("[ESP LOGGER] No more data to send");
         break;
       }
   
       // Second step: send chunk
-      if(debugVerbosity > 1) Serial.println(":::::::::::::::Second step: Chunk flushing...");
+      if(debugVerbosity > 1) Serial.println("[ESP LOGGER] :::::::::::::::Second step: Chunk flushing...");
       successFlush=flusher(buffer,nBuffer);
       if(!successFlush) break;
 
@@ -190,7 +191,7 @@ void LoggerSD::flush(){
 
     if(!successFlush){
       if(chunkCount > 0){
-        if(debugVerbosity > 1) Serial.println("Partial unsuccessful sending!");
+        if(debugVerbosity > 1) Serial.println("[ESP LOGGER] Partial unsuccessful sending!");
         // I have to discard the successfully sent log, and save the remainings.
         // NOTE: in some FS, the filename il limited to 8.3 charcters
         String tempFilePath = "/templog.tmp";
@@ -206,7 +207,7 @@ void LoggerSD::flush(){
           f.close();
           // Riordino i file
           if(SD.remove(filePath)){
-            if (debugVerbosity>1) Serial.println("The old file is deleted!");
+            if (debugVerbosity>1) Serial.println("[ESP LOGGER] The old file is deleted!");
  #ifdef ESP32
             if(SD.rename(tempFilePath, filePath)){
  #elif ESP8266
@@ -219,29 +220,29 @@ void LoggerSD::flush(){
               if(SD.remove(tempFilePath)){
                 success=true;
               }else{
-                if (debugVerbosity>1) Serial.println("Delete failed");
+                if (debugVerbosity>1) Serial.println("[ESP LOGGER] Delete failed");
               }
             }else{
-              if (debugVerbosity>1) Serial.println("Something went wrong during the copy!");
+              if (debugVerbosity>1) Serial.println("[ESP LOGGER] sSomething went wrong during the copy!");
             }
 
             if(success){
  #endif
-              if (debugVerbosity>1) Serial.println("The temp file is moved!");
+              if (debugVerbosity>1) Serial.println("[ESP LOGGER] The temp file is moved!");
             
             }else{
-              if (debugVerbosity>0) Serial.println("The temp file wasn't moved");
+              if (debugVerbosity>0) Serial.println("[ESP LOGGER] The temp file wasn't moved");
             }
           }else{
-            if (debugVerbosity>0) Serial.println("The temp file is NOT deleted!");
+            if (debugVerbosity>0) Serial.println("[ESP LOGGER] The temp file is NOT deleted!");
           }
           return;
         }else{
-          if (debugVerbosity>0) Serial.println("Writing temp log file error!");
+          if (debugVerbosity>0) Serial.println("[ESP LOGGER] Writing temp log file error!");
         }
       }else{
         // Nothing was sent, so I can close the file and exit from this function
-        if(debugVerbosity > 1) Serial.println("Unsuccessful sending! Nothing is flushed..");
+        if(debugVerbosity > 1) Serial.println("[ESP LOGGER] Unsuccessful sending! Nothing is flushed..");
       }
     }else{
       f.close();
@@ -251,9 +252,9 @@ void LoggerSD::flush(){
     // Free the memory buffer
     free(buffer);
   }else{
-    if (debugVerbosity>0) Serial.println("Opening log file error!");
+    if (debugVerbosity>0) Serial.println("[ESP LOGGER] Opening log file error!");
   }
-  if(debugVerbosity>1) Serial.println("End of flushing the log file!");
+  if(debugVerbosity>1) Serial.println("[ESP LOGGER] End of flushing the log file!");
 }
 
 LoggerSD::LoggerSD(String file, int debugVerbosity): Logger(file,debugVerbosity){
@@ -261,11 +262,11 @@ LoggerSD::LoggerSD(String file, int debugVerbosity): Logger(file,debugVerbosity)
 
 bool LoggerSD::begin(){
 #ifdef ESP8266
-  Serial.println("On ESP8266 this is not implemented, because multiple init are going to fail..");
+  Serial.println("[ESP LOGGER] On ESP8266 this is not implemented, because multiple init are going to fail..");
   return false;
 #endif  
   if(!SD.begin(16)){
-    Serial.println("Card Mount Failed");
+    Serial.println("[ESP LOGGER] Card Mount Failed");
     return false;
   }
   return true;
@@ -273,11 +274,11 @@ bool LoggerSD::begin(){
 
 bool LoggerSD::begin(int csPin){
 #ifdef ESP8266
-  Serial.println("On ESP8266 this is not implemented, because multiple init are going to fail..");
+  Serial.println("[ESP LOGGER] On ESP8266 this is not implemented, because multiple init are going to fail..");
   return false;
 #endif  
   if(!SD.begin(csPin)){
-    Serial.println("Card Mount Failed");
+    Serial.println("[ESP LOGGER] Card Mount Failed");
     return false;
   }
   return true;
@@ -289,15 +290,14 @@ unsigned int LoggerSD::getActualSize(){
   // Trick to be sure that an empty file exist, and it's dimension is 0 (BUG in esp32)
   if(!SD.exists(filePath)){
     file=SD.open(filePath, FILE_WRITE);
-  }else{
-#ifdef ESP32
-  // In ESP32 I can use to usual notation "a" for append
-  file=SD.open(filePath,"a");
-#elif ESP8266
-  // Note the esp8266 interprets this constant as an apped, i.e. O_TRUNC flag is not set
-  file=SD.open(filePath, FILE_WRITE);
-#endif
+    if(file){
+        file.close();
+    }else{
+        if (debugVerbosity>0) Serial.println("[ESP LOGGER] getActualSize() open log file error!");
+    }
   }
+
+  file=SD.open(filePath, FILE_READ);
   if(file){
     result=file.size();
     file.close();
