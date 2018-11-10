@@ -1,6 +1,16 @@
-Pin				KEYWORD1
-Pins			KEYWORD1
-newPinDef		KEYWORD1
-baselineData	KEYWORD2
-touched			KEYWORD2
-setThresholds	KEYWORD2
+Logger	KEYWORD1
+LoggerSPIFFS	KEYWORD1
+LoggerSD	KEYWORD1
+LoggerRoutine	KEYWORD1
+
+begin	KEYWORD2
+setSizeLimit	KEYWORD2
+setSizeLimitPerChunk	KEYWORD2
+setOneRecordPerChunk	KEYWORD2
+setFlusherCallback	KEYWORD2
+append	KEYWORD2
+reset	KEYWORD2
+flush	KEYWORD2
+getActualSize	KEYWORD2
+getSizeLimit	KEYWORD2
+setPeriod	KEYWORD2
