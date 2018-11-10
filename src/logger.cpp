@@ -62,3 +62,5 @@ Logger::Logger(String file, int debugVerbosity):
                   })
 {
 };
+
+Logger::~Logger(){}

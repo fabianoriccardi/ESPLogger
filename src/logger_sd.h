@@ -42,7 +42,7 @@ class LoggerSD : public Logger{
   bool begin();
   bool begin(int csPin);
 
-  bool append(String message, bool timestamp=true);
+  bool append(String message, bool timestamp = true);
 
   void reset();
   

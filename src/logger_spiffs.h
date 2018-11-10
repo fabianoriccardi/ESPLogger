@@ -41,7 +41,7 @@ class LoggerSPIFFS : public Logger{
 
   bool begin();
 
-  bool append(String message, bool timestamp=true);
+  bool append(String message, bool timestamp = true);
 
   void reset();
   

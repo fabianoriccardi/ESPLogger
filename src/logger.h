@@ -37,7 +37,7 @@
 class Logger{
   public:
   
-  Logger(String file, int debugVerbosity);
+  Logger(String file, int debugVerbosity = 1);
 
   /**
    * Activate the Filesystem, call before starting to append or flush,
@@ -96,6 +96,8 @@ class Logger{
    * Get maximum log dimension
    */
   unsigned int getSizeLimit();
+
+  virtual ~Logger();
   
   protected:
   String filePath;
