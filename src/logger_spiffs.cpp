@@ -67,9 +67,9 @@ static void saveChunk(File& file, char* buffer, int nBuffer){
   int bufferIndex=0;
   // Check if there is another string to print
   while(bufferIndex<nBuffer && strlen(&buffer[bufferIndex])>0){
-      int bytePrinted = file.println(&buffer[bufferIndex]);
-      // -2, the '\r' and '\n' are printed automatically in the println
-      // +1, the '\0' in the buffer is automatically processed but not printed
+    int bytePrinted = file.println(&buffer[bufferIndex]);
+    // -2, the '\r' and '\n' are printed automatically in the println
+    // +1, the '\0' in the buffer is automatically processed but not printed
     bufferIndex += bytePrinted - 2 + 1;
   }
 }
@@ -106,7 +106,7 @@ void LoggerSPIFFS::flush(){
       if(debugVerbosity > 1) Serial.println(String("[ESP LOGGER] :::::::::::::::::::::::::::") + chunkCount);
       
       // First step: fill the buffer with a chunk of data
-      if(debugVerbosity > 1) Serial.println(" [ESP LOGGER] :::::::::::::::First step: Chunk loading...");
+      if(debugVerbosity > 1) Serial.println("[ESP LOGGER] :::::::::::::::First step: Chunk loading...");
       
       nBuffer = 0;
       bool doRead = true;
@@ -224,9 +224,9 @@ unsigned int LoggerSPIFFS::getActualSize(){
   if(!SPIFFS.exists(filePath)){
     file=SPIFFS.open(filePath,"w");
     if(file){
-        file.close();
+      file.close();
     }else{
-        if (debugVerbosity>0) Serial.println("[ESP LOGGER] getActualSize() open log file error!");
+      if (debugVerbosity>0) Serial.println("[ESP LOGGER] getActualSize() open log file error!");
     }
   }
 
