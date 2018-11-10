@@ -290,11 +290,11 @@ LoggerSD::LoggerSD(String file, int debugVerbosity): Logger(file,debugVerbosity)
 
 bool LoggerSD::begin(){
 #ifdef ESP8266
-  Serial.println("[ESP LOGGER] On ESP8266 this is not implemented, because multiple init are going to fail..");
+  if (debugVerbosity>1) Serial.println("[ESP LOGGER] On ESP8266 this is not implemented, because multiple init are going to fail..");
   return false;
 #endif  
   if(!SD.begin(16)){
-    Serial.println("[ESP LOGGER] Card Mount Failed");
+    if (debugVerbosity>1) Serial.println("[ESP LOGGER] Card Mount Failed");
     return false;
   }
   return true;
@@ -302,11 +302,11 @@ bool LoggerSD::begin(){
 
 bool LoggerSD::begin(int csPin){
 #ifdef ESP8266
-  Serial.println("[ESP LOGGER] On ESP8266 this is not implemented, because multiple init are going to fail..");
+  if (debugVerbosity>1) Serial.println("[ESP LOGGER] On ESP8266 this is not implemented, because multiple init are going to fail..");
   return false;
 #endif  
   if(!SD.begin(csPin)){
-    Serial.println("[ESP LOGGER] Card Mount Failed");
+    if (debugVerbosity>1) Serial.println("[ESP LOGGER] Card Mount Failed");
     return false;
   }
   return true;

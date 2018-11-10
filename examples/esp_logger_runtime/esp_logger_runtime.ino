@@ -6,7 +6,7 @@ const int period = 30;
 // Path where the log is placed
 const String filepath = "/log/mylog.log";
 
-LoggerSPIFFS myLog("/log/mylog.log", 2);
+LoggerSPIFFS myLog(filepath, 2);
 
 // This class takes care of flushing the log file every period 
 LoggerRoutine logRun(myLog, period);
@@ -30,8 +30,9 @@ void somethingHappening(){
   
   // counter is a multiple of 4, log it!
   if(counter%3==0){
-    Serial.println(String("Oh, ->") + counter + "<- is just happend");
+    Serial.println(String("Oh, ->") + counter + "<- is just happened");
     myLog.append(String("val:") + counter);
+    Serial.println(String("Now the log takes ") + myLog.getActualSize() + "/" + myLog.getSizeLimit());
   }
   somethingHappens.attach(eventFrequency, somethingHappening);
 }
@@ -42,11 +43,11 @@ void setup() {
   Serial.println("Log on SPIFFS example");
   
   myLog.begin();
-  myLog.setSizeLimit(1000,false);
+  myLog.setSizeLimit(1000, false);
   myLog.setSizeLimitPerChunk(60);
   myLog.setFlusherCallback(senderHelp);
   somethingHappens.attach(eventFrequency, somethingHappening);
-  
+
   logRun.begin(true);
 }
 

@@ -235,12 +235,12 @@ LoggerSPIFFS::LoggerSPIFFS(String file, int debugVerbosity): Logger(file,debugVe
 };
 
 bool LoggerSPIFFS::begin(){
-  Serial.print("[ESP LOGGER] Filesystem initialization... ");
+  if (debugVerbosity>1) Serial.print("[ESP LOGGER] Filesystem initialization... ");
   if(!SPIFFS.begin()){
-    Serial.print("Error in starting file system, you could try to format it...");
+    if (debugVerbosity>1) Serial.print("Error in starting file system, you could try to format it...");
     return false;
   }else{
-    Serial.println("Done!");
+    if (debugVerbosity>1) Serial.println("Done!");
     return true;
   }    
 }

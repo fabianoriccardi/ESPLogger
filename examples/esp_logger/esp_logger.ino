@@ -1,7 +1,7 @@
 #include <Ticker.h>
 #include <logger_spiffs.h>
 
-LoggerSPIFFS myLog("/log/mylog.log",1);
+LoggerSPIFFS myLog("/log/mylog.log");
 
 /** 
  * Event generation and management 
@@ -21,7 +21,7 @@ void somethingHappening(){
   
   // counter is a multiple of 3, log it!
   if(counter%3==0){
-    Serial.println(String("Oh, ->") + counter + "<- is just happend");
+    Serial.println(String("Oh, ->") + counter + "<- is just happened");
     myLog.append(String("val:") + counter);
   }
   somethingHappens.attach(eventFrequency, somethingHappening);
@@ -33,7 +33,13 @@ void setup() {
 
   Serial.println("Basic log example");
 
-  myLog.begin();  
+  Serial.print("Initializing SD card... ");
+  if(!myLog.begin()){
+    Serial.println("Failed!");
+    while(1) delay(100);
+  }else{
+    Serial.println("Done!");
+  }
   myLog.setFlusherCallback(senderHelp);
   somethingHappens.attach(eventFrequency, somethingHappening);
 }
@@ -54,8 +60,8 @@ void loop() {
 
 /**
  * Callback to support the flushing.
- * In this case the flushing is performed on the Serial interface, but you can easily 
- * replace this behaviour with a wireless connection or whatever function. 
+ * In this case the flushing is performed on the Serial interface,
+ * but you can easily replace this to send data over wireless network 
  */
 bool senderHelp(char* buffer, int n){
   int index=0;
