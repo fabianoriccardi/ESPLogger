@@ -6,7 +6,7 @@ const int period = 30;
 // Path where the log is placed
 const String filepath = "/log/mylog.log";
 
-LoggerSPIFFS myLog(filepath, 2);
+LoggerSPIFFS myLog(filepath);
 
 // This class takes care of flushing the log file every period 
 LoggerRoutine logRun(myLog, period);

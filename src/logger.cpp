@@ -49,13 +49,13 @@ unsigned int Logger::getSizeLimit(){
     return sizeLimit;
 }
 
-Logger::Logger(String file, int debugVerbosity): 
+Logger::Logger(String file, DebugLevel debugVerbosity):
           filePath(file),
           sizeLimit(1000),
           strictLimit(true),
           sizeLimitPerChunk(100),
           oneRecordPerChunk(false),
-          debugVerbosity(debugVerbosity),
+          debugVerbosity(DebugLevel::ERROR),
           flusher([](char*,int){
                     Serial.println("[ESP LOGGER] Default flusher, please define your own flusher"); 
                     return true;

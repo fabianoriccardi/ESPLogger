@@ -1,8 +1,9 @@
 #include <logger_sd.h>
 #include <logger_routine.h>
 
-// SD.h is required to init the file system
-#include "SD.h"
+// SD.h is required to init the file system directly in the setup
+// othewise you can call the method begin(..) (only for ESP32)
+#include <SD.h>
 
 #ifdef ESP8266 
 const int csPin = D4;
@@ -15,7 +16,7 @@ const int period = 30;
 
 const String filepath = "/myLog.log";
 
-LoggerSD myLog(filepath, 2);
+LoggerSD myLog(filepath);
 
 // This class takes care to flush "myLog" object every period 
 LoggerRoutine myLogRun(myLog, period);

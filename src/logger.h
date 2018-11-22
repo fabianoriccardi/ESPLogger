@@ -37,11 +37,18 @@
 class Logger{
   public:
   
-  Logger(String file, int debugVerbosity = 1);
+  /**
+   * A brief enumaration to classify the message's severity
+   */
+  enum class DebugLevel { QUIET = 0, FATAL = 1, ERROR = 2 , WARN = 3, INFO = 4, DEBUG = 5, TRACE = 6 };
+
+  Logger(String file, DebugLevel debugVerbosity = DebugLevel::ERROR);
 
   /**
-   * Activate the Filesystem, call before starting to append or flush,
-   * return true is case of successfull init, false otherwise
+   * Start the Filesystem, call this before starting to append or
+   * flush, return true is case of success, false otherwise
+   * 
+   * Actually this is just a wrapper for concrete begin(..) method
    */
   virtual bool begin() = 0;
 
@@ -62,7 +69,7 @@ class Logger{
   void setSizeLimitPerChunk(unsigned int size);
 
   /**
-   * Sets if the logger shoud prepare chunk with at most one record.
+   * Sets if the logger should prepare chunk with at most one record.
    */
   void setOneRecordPerChunk(bool one);
 
@@ -129,12 +136,9 @@ class Logger{
   bool oneRecordPerChunk;
 
   /**
-   * Print
-   * 0 - no messages
-   * 1 - error and important messages
-   * 2 - all the messages
+   * Store the debug level.
    */
-  int debugVerbosity;
+  DebugLevel debugVerbosity;
 
   /**
    * Callback called during the flush function. When a chunk is filled,

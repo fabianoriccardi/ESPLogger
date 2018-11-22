@@ -37,7 +37,7 @@
 class LoggerSPIFFS : public Logger{
   public:
   
-  LoggerSPIFFS(String file, int debugVerbosity = 1);
+  LoggerSPIFFS(String file, DebugLevel debugVerbosity = DebugLevel::ERROR);
 
   bool begin();
 

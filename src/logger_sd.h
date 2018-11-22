@@ -37,7 +37,7 @@
 class LoggerSD : public Logger{
   public:
   
-  LoggerSD(String file, int debugVerbosity = 1);
+  LoggerSD(String file, DebugLevel debugVerbosity = DebugLevel::ERROR);
   
   bool begin();
   bool begin(int csPin);
