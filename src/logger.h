@@ -42,6 +42,11 @@ class Logger{
    */
   enum class DebugLevel { QUIET = 0, FATAL = 1, ERROR = 2 , WARN = 3, INFO = 4, DEBUG = 5, TRACE = 6 };
 
+  /**
+   * A function to translate the enum value to human friendly string
+   */
+  static String translate(DebugLevel level);
+
   Logger(String file, DebugLevel debugVerbosity = DebugLevel::ERROR);
 
   /**

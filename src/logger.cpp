@@ -28,6 +28,27 @@
  ***************************************************************************/
 #include "logger.h"
 
+String Logger::translate(DebugLevel level){
+  switch(level){
+    case DebugLevel::QUIET:
+      return "QUIET";
+    case DebugLevel::FATAL:
+      return "FATAL";
+    case DebugLevel::ERROR:
+      return "ERROR";
+    case DebugLevel::WARN:
+      return "WARN";
+    case DebugLevel::INFO:
+      return "INFO";
+    case DebugLevel::DEBUG:
+      return "DEBUG";
+    case DebugLevel::TRACE:
+      return "TRACE";
+    default:
+      return "";
+  }
+};
+
 void Logger::setSizeLimit(unsigned int size, bool strict){
   sizeLimit=size;
   strictLimit=strict;
@@ -55,7 +76,7 @@ Logger::Logger(String file, DebugLevel debugVerbosity):
           strictLimit(true),
           sizeLimitPerChunk(100),
           oneRecordPerChunk(false),
-          debugVerbosity(DebugLevel::ERROR),
+          debugVerbosity(debugVerbosity),
           flusher([](char*,int){
                     Serial.println("[ESP LOGGER] Default flusher, please define your own flusher"); 
                     return true;
