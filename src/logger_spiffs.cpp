@@ -112,12 +112,12 @@ static void saveRemainings(File& destination, File& source){
   }
 }
 
-void LoggerSPIFFS::flush(){
+bool LoggerSPIFFS::flush(){
   if(debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] Flushing the log file...");
   
   if(!SPIFFS.exists(filePath)){
     if (debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] File doesn't exist, nothing to flush..");
-    return;
+    return true;
   }
   
   File f=SPIFFS.open(filePath,"r");
@@ -208,8 +208,7 @@ void LoggerSPIFFS::flush(){
           }else{
             if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] The temp file is NOT deleted!");
           }
-          
-          return;
+          return false;
         }else{
           if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] Writing temp log file error!");
         }
@@ -225,10 +224,12 @@ void LoggerSPIFFS::flush(){
 
     // Free the memory buffer
     free(buffer);
+    return successFlush;
   }else{
     if (debugVerbosity>DebugLevel::ERROR) Serial.println("[ESP LOGGER] Opening log file error!");
   }
   if(debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] End of flushing the log file!");
+  return false;
 }
 
 LoggerSPIFFS::LoggerSPIFFS(String file, DebugLevel debugVerbosity): Logger(file, debugVerbosity){

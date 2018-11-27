@@ -97,7 +97,7 @@ class Logger{
   /**
    * Send all the data through the callback function.
    */
-  virtual void flush() = 0;
+  virtual bool flush() = 0;
 
   /**
    * Get actual log size.

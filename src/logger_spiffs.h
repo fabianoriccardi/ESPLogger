@@ -45,7 +45,7 @@ class LoggerSPIFFS : public Logger{
 
   void reset();
   
-  void flush();
+  bool flush();
 
   unsigned int getActualSize();
 

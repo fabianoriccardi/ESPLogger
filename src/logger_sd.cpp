@@ -143,12 +143,12 @@ static bool copyFile(String source, String destination){
 }
 #endif
 
-void LoggerSD::flush(){
+bool LoggerSD::flush(){
   if(debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] Flushing the log file...");
   
   if(!SD.exists(filePath)){
     if (debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] File doesn't exist, nothing to flush..");
-    return;
+    return true;
   }
   
   File f=SD.open(filePath,FILE_READ);
@@ -264,7 +264,7 @@ void LoggerSD::flush(){
           }else{
             if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] The temp file is NOT deleted!");
           }
-          return;
+          return false;
         }else{
           if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] Writing temp log file error!");
         }
@@ -279,10 +279,12 @@ void LoggerSD::flush(){
 
     // Free the memory buffer
     free(buffer);
+    return successFlush;
   }else{
     if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] Opening log file error!");
   }
   if(debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] End of flushing the log file!");
+  return false;
 }
 
 LoggerSD::LoggerSD(String file, DebugLevel debugVerbosity): Logger(file, debugVerbosity){
