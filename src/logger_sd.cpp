@@ -29,6 +29,10 @@
 #include "logger_sd.h"
 #include "SD.h"
 
+#ifndef O_TRUNC
+#define O_TRUNC 0x0400
+#endif
+
 bool LoggerSD::append(String message, bool timestamp){
   unsigned int total=0;
   
