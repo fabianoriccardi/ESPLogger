@@ -208,7 +208,7 @@ bool LoggerSPIFFS::flush(){
           }else{
             if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] The temp file is NOT deleted!");
           }
-          return false;
+          //return false; //refer https://github.com/fabiuz7/esp-logger-lib/issues/5
         }else{
           if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] Writing temp log file error!");
         }
