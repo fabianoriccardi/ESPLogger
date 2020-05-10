@@ -29,10 +29,6 @@
 #include "logger_sd.h"
 #include "SD.h"
 
-#ifndef O_TRUNC
-#define O_TRUNC 0x0400
-#endif
-
 bool LoggerSD::append(String message, bool timestamp){
   unsigned int total=0;
   
@@ -122,7 +118,9 @@ static void saveRemainings(File& destination, File& source){
 #ifdef ESP8266
 static bool copyFile(String source, String destination){
   File s=SD.open(source,FILE_READ);
-  File d=SD.open(destination, FILE_WRITE | O_TRUNC);
+  // Since FILE_WRITE is just like an append, I need to delete the file before opening
+  SD.remove(destination);
+  File d=SD.open(destination, FILE_WRITE);
   if(!s){
     if(d){
       d.close();
@@ -230,7 +228,9 @@ bool LoggerSD::flush(){
 #ifdef ESP32        
         File tempFile=SD.open(tempFilePath,"w");
 #elif ESP8266
-        File tempFile=SD.open(tempFilePath, FILE_WRITE|O_TRUNC);
+        // Since FILE_WRITE is just like an append, I need to delete the file before opening
+        SD.remove(tempFilePath);
+        File tempFile=SD.open(tempFilePath, FILE_WRITE);
 #endif
         if(f){
           saveChunk(tempFile,buffer,nBuffer);
