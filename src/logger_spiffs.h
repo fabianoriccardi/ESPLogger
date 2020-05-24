@@ -41,7 +41,8 @@ class LoggerSPIFFS : public Logger{
 
   bool begin();
 
-  bool append(String message, bool timestamp = true);
+  using Logger::append;
+  bool append(const char* record, bool timestamp = true);
 
   void reset();
   

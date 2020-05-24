@@ -49,6 +49,10 @@ String Logger::translate(DebugLevel level){
   }
 };
 
+bool Logger::append(String record, bool timestamp){
+  return append(record.c_str(), timestamp);
+}
+
 void Logger::setSizeLimit(unsigned int size, bool strict){
   sizeLimit=size;
   strictLimit=strict;

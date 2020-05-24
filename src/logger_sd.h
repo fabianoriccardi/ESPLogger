@@ -42,7 +42,8 @@ class LoggerSD : public Logger{
   bool begin();
   bool begin(int csPin);
 
-  bool append(String message, bool timestamp = true);
+  using Logger::append;
+  bool append(const char* record, bool timestamp = true);
 
   void reset();
   

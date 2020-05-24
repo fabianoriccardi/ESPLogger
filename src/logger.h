@@ -84,10 +84,19 @@ class Logger{
   void setFlusherCallback(bool (*foo)(char*, int) );
 
   /** 
-   * Append a line to the target file. 
+   * Append a record to the target file.
+   * Return true if the record is succefully stored, otherwise false.
+   * NOTE: It duplicates the record in RAM before storing it,
+   *       not suitable for very large record.
+   */
+  bool append(String record, bool timestamp = true)
+        __attribute__((deprecated("record is duplicated, augmenting heap fragmentation: consider append(const char*, bool) that is zero-copy")));
+  
+  /** 
+   * Append a record to the target file. This method is zero-copy.
    * Return true if the record is succefully stored, otherwise false.
    */
-  virtual bool append(String message, bool timestamp = true) = 0;
+  virtual bool append(const char* record, bool timestamp = true) = 0;
 
   /**
    * Delete the current log file.

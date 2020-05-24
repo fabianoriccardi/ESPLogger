@@ -48,25 +48,43 @@
 #include <SPIFFS.h>
 #endif
 
-bool LoggerSPIFFS::append(String message, bool timestamp){
-  unsigned int total=0;
-  
+bool LoggerSPIFFS::append(const char* record, bool timestamp){
+  // Max 10 digits in an integer
+  char timestampString[11] = {0};
   if(timestamp){
-    int now=millis();
-    String nowString(now);
-    message = nowString + " " + message;
-  }
-    
-  // if strict, calculate the next file size
-  // (including the line to be recorded)
-  if(strictLimit){  
-    total = message.length();
-    // +2 because 2 bytes are required at the end of each line in this FS implementation
-    total += 2;
+    unsigned int now=millis();
+    itoa(now, timestampString, 10);
   }
 
-  if(message.length()+1>sizeLimitPerChunk){
-    if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] @@@@ FATAL ERROR: This message is too large, it can't be neither stored nor sent due to limitation on chunk size, please change it before continue!!!");
+  unsigned int recordLength = strlen(record);
+  // +2 because 2 bytes are required at the end of each line in this FS implementation
+  recordLength += 2;
+
+  if(timestamp){
+    // Consider a blank space between the timestamp and the record
+    recordLength += strlen(timestampString) + 1;
+  }
+
+  if (debugVerbosity>=DebugLevel::INFO){
+    Serial.print("[ESP LOGGER] Recording message: ___");
+    if(timestamp){
+      Serial.print(timestampString);
+      Serial.print(" ");
+    }
+    Serial.print(record);
+    Serial.println("___");
+    Serial.print("[ESP LOGGER] Record length:");
+    Serial.println(recordLength);
+  }
+
+  // +1 because the terminating char of a chunk
+  if(recordLength+1>sizeLimitPerChunk){
+    if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] @@@@ FATAL ERROR: This message is too large, it can't be sent because the limitation on chunk size, please change it before continue!!!");
+    return false;
+  }
+
+  if(recordLength>sizeLimit){
+    if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] @@@@ FATAL ERROR: This message is too large, it can't be stored because the limitation on file size, please change it before continue!!!");
     return false;
   }
   
@@ -79,26 +97,33 @@ bool LoggerSPIFFS::append(String message, bool timestamp){
   }
 
   File f=ESP_LOGGER_FLASH_FS.open(filePath,"a");
-  if(f){
-    total += f.size();
-    if (debugVerbosity>=DebugLevel::INFO) Serial.println(String("[ESP LOGGER] ") + total + "/" + sizeLimit + "bytes are already occupied");
-    if (debugVerbosity>=DebugLevel::INFO) Serial.println(String("[ESP LOGGER] Recording message: ___") + message + "___");
-    if(total>sizeLimit){
-      if(message.length()+2>sizeLimit){
-        if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] @@@@ FATAL ERROR: This message is too large, it can't be stored nor sent due to limitation on file size, please change it before continue!!!");
-      }else{
-        if (debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] You have reached the maximum file length, the record can't be stored. Please flush the log.");
-      }
-      f.close();
-      return false;
-    }
-    f.println(message);
-    f.close();
-    return true;
-  }else{
+  if(!f) {
     if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] Opening log file error!");
+    return false;
   }
-  return false;
+
+  unsigned int totalFileLength = f.size();
+  if (debugVerbosity>=DebugLevel::INFO) Serial.println(String("[ESP LOGGER] ") + f.size() + "/" + sizeLimit + "bytes are already occupied");
+  
+  // if strict, calculate the file size comprising the actual record
+  if(strictLimit){
+    totalFileLength += recordLength;
+  }
+
+  if(totalFileLength>sizeLimit){
+    if (debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] You have reached the maximum file length, the record can't be stored. Please flush the log.");
+    f.close();
+    return false;
+  }
+  if(timestamp){
+    f.print(timestampString);
+    f.print(" ");
+  }
+  f.println(record);
+  f.close();
+
+  if (debugVerbosity>=DebugLevel::INFO) Serial.println("[ESP LOGGER] Record properly logged"); 
+  return true;
 }
 
 void LoggerSPIFFS::reset(){
