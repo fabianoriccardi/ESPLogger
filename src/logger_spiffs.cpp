@@ -30,7 +30,7 @@
 
 #include <FS.h>
 
-#ifdef ESP8266
+#if defined(ESP8266)
 
 #define ESP_LOGGER_FLASH_FS_SPIFFS 
 //#define ESP_LOGGER_FLASH_FS_LITTLEFS 
@@ -42,9 +42,8 @@
 #include <LittleFS.h>
 #endif
 
-#endif
-
-#ifdef ESP32
+#elif defined(ESP32)
+#define ESP_LOGGER_FLASH_FS SPIFFS
 #include <SPIFFS.h>
 #endif
 
@@ -280,10 +279,10 @@ bool LoggerSPIFFS::begin(){
   if(!ESP_LOGGER_FLASH_FS.begin()){
     if (debugVerbosity>=DebugLevel::WARN) Serial.print("Error in starting file system, you could try to format it...");
     return false;
-  }else{
-    if (debugVerbosity>=DebugLevel::WARN) Serial.println("Done!");
-    return true;
-  }    
+  }
+
+  if (debugVerbosity>=DebugLevel::WARN) Serial.println("Done!");
+  return true;
 }
 
 unsigned int LoggerSPIFFS::getActualSize(){
