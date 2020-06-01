@@ -38,12 +38,12 @@ class Logger{
   public:
   
   /**
-   * A brief enumaration to classify the message's severity
+   * A brief enumaration to classify the message's severity.
    */
   enum class DebugLevel { QUIET = 0, FATAL = 1, ERROR = 2 , WARN = 3, INFO = 4, DEBUG = 5, TRACE = 6 };
 
   /**
-   * A function to translate the enum value to human friendly string
+   * A function to translate the enum value to human friendly string.
    */
   static String translate(DebugLevel level);
 
@@ -51,30 +51,31 @@ class Logger{
 
   /**
    * Start the Filesystem, call this before starting to append or
-   * flush, return true is case of success, false otherwise
+   * flush, return true is case of success, false otherwise.
    * 
-   * Actually this is just a wrapper for concrete begin(..) method
+   * NOTE: Actually this is just a wrapper for begin(..) method.
    */
   virtual bool begin() = 0;
 
   /**
-   * Impose a limit the log file.
+   * Set a limit to the log size.
    * This is very important to avoid the memory saturation.
    * The param strict is used to enforce the relation
-   * actual size <= total size
+   * actual maxLogSize <= size, otherwise if false, the
+   * following relation is applied:
+   * maxLogSize <= size+recordSize
    */
   void setSizeLimit(unsigned int size, bool strict = true);
 
   /**
-   * Set the maximum byte that can be carried on a single chunk.
-   * Useful in case of few RAM available (remember that the data 
-   * have to live in RAM for a moment before they are sent
-   * over the network)
+   * Set the maximum byte that can be inserted in a single chunk.
+   * Useful when few RAM is available (remember that the data 
+   * has to live in RAM for a moment before they are flushed).
    */
   void setSizeLimitPerChunk(unsigned int size);
 
   /**
-   * Sets if the logger should prepare chunk with at most one record.
+   * Sets if the logger must prepare single-record chunks.
    */
   void setOneRecordPerChunk(bool one);
 
@@ -114,7 +115,7 @@ class Logger{
   virtual unsigned int getActualSize() = 0;
 
   /**
-   * Get maximum log dimension
+   * Get maximum log size.
    */
   unsigned int getSizeLimit();
 
@@ -122,11 +123,6 @@ class Logger{
   
   protected:
   String filePath;
-
-  /**
-   * Actual dimension used by log file
-   */
-  unsigned int actualSize;
 
   /**
    * Maximum dimension of log size. It includes the terminator chars.
@@ -150,19 +146,18 @@ class Logger{
   bool oneRecordPerChunk;
 
   /**
-   * Store the debug level.
+   * Debug level.
    */
   DebugLevel debugVerbosity;
 
   /**
-   * Callback called during the flush function. When a chunk is filled,
-   * it is passed to this callback. The first paramenter is the buffer
-   * containing a bunch of records, '\0' separated. The second parameter 
-   * is the logic size of the buffer (i.e. the content's length, '\0' included).
-   * This fucntion returns a boolean: true means that the chunk was correclty 
-   * sent over the network (or properly managed by the user), false means that 
-   * there was an error, so the chunk should be preserved for future re-sending, moreover,
-   * returning false stops the flushing function.
+   * Callback called during the flushing. The first parameter is the buffer
+   * containing one or more records, separated by '\0' char. The second parameter 
+   * is the content's length, '\0' included.
+   * 
+   * This function must a boolean: true means that the chunk was correctly 
+   * flushed; false means that there was an error, hence the chunk is preserved
+   * for the next flush, and it stops the current flushing.
    */
   bool (*flusher)(char*, int);
 

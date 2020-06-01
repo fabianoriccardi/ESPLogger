@@ -29,9 +29,9 @@ There are 2 main functions to be aware of: *append* and *flush*.
 
 #### Append
 
-    bool append(String data)
+    bool append(const char* record)
 
-it creates and stores a *Record* containing the input data. You cannot log data containing non-printable characters, nor new line or carriage return. Return true if the data is saved, false otherwise.
+it creates and stores a *Record*. You cannot log data containing non-printable characters, nor new line or carriage return. Return true if the data is saved, false otherwise.
 
 #### Flush
 
@@ -39,11 +39,11 @@ it creates and stores a *Record* containing the input data. You cannot log data 
 
 it calls your callback function which has the following prototype:
 
-    bool flusher(char* buffer, int n);
+    bool flusher(char* chunk, int n);
 
-where char* is a buffer that contains one or more records, *n* tells how many bytes is long this buffer. This function should return true is the buffer flush has succeeded, false otherwise (e.g. the server wasn't reachable). If true, the library deletes the flushed data and, if other data are available, it calls flusher() again, otherwise it stops. If false, the library stops the flushing process and preserves the unflushed data for the next flush(). 
+where *chunk* is a buffer that contains one or more records separated by '\0' char; *n* tells how many bytes is long the chunk, including '\0'. This function must return true is the buffer flush has succeeded, false otherwise (e.g. the server wasn't reachable). If true, the library deletes the flushed data and, if other data are available, it calls flusher() again, otherwise it stops. If false, the library stops the flushing process and preserves the unflushed data for the next flush().
 
-This kind of packetization can be useful in various scenarios, especially when the log is very large and you cannot send everything in one shot. The max buffer size can be arbitrarily set at run-time, though a dedicated method.
+This kind of packetization can be useful in various scenarios, especially when the log is very large and you cannot send everything in one shot. The maximum size of a chunk can be set at run-time through *setSizeLimitPerChunk()*.
 
 Please note that the flush() method guarantees that: 
 

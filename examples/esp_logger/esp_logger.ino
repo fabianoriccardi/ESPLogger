@@ -1,19 +1,23 @@
+/**
+ * Log on flash memory an event every 1.5 seconds. Every 30 seconds,
+ * the log file is flushed over serial port.
+ *
+ * NOTE: the first time you run this sketch or when changing the file system
+ *       layout, explicit formatting is recommended.
+ */
 #include <Ticker.h>
 #include <logger_spiffs.h>
 
+// Specify the path where the log is placed
 LoggerSPIFFS myLog("/log/mylog.log");
-
-/** 
- * Event generation and management 
- */
 
 // Event generator, this could be implemented in the main loop
 Ticker somethingHappens;
 
-// in seconds
-float eventFrequency = 1.5;
+// Event generation period, in seconds
+float eventPeriod = 1.5;
 
-// This is the variable event to log
+// Variable to be logged
 int counter = 0;
 
 void somethingHappening(){
@@ -21,37 +25,34 @@ void somethingHappening(){
   
   // counter is a multiple of 3, log it!
   if(counter%3==0){
-    Serial.println(String("Oh, ->") + counter + "<- is just happened");
-    myLog.append(String("val:") + counter);
+    Serial.println(String("Hey, event ->") + counter + "<- is just happened");
+    String record = String("val:") + counter;
+    myLog.append(record.c_str());
   }
-  somethingHappens.attach(eventFrequency, somethingHappening);
 }
 
 void setup() {
   Serial.begin(115200);
   while(!Serial);
+  Serial.println();
+  Serial.println("ESP Logger - Log on internal flash memory");
 
-  Serial.println("Basic log example");
-
-  Serial.print("Initializing SD card... ");
-  if(!myLog.begin()){
-    Serial.println("Failed!");
-    while(1) delay(100);
-  }else{
-    Serial.println("Done!");
-  }
+  myLog.begin();
   myLog.setFlusherCallback(senderHelp);
-  somethingHappens.attach(eventFrequency, somethingHappening);
+
+  Serial.println("Starting to log...");
+  somethingHappens.attach(eventPeriod, somethingHappening);
 }
 
-// in millisecond
+// flush period, in millisecond
 int period = 30000;
 
 unsigned int nextTime = 0;
 
-// This loop is the logger controller, it decides when it's time to flush
-// You can see a more elegant management in other examples. 
+
 void loop() {
+  // This loop is the logger controller, it decides
+  // when it's time to flush. In other examples I will use Ticker library. 
   if (millis()>nextTime){
     nextTime += period;
     myLog.flush();
@@ -59,9 +60,9 @@ void loop() {
 }
 
 /**
- * Callback to support the flushing.
- * In this case the flushing is performed on the Serial interface,
- * but you can easily replace this to send data over wireless network 
+ * Flush a chuck of logged records. To exemplify, the records are
+ * flushed on Serial, but you are free to modify it to send data
+ * over the network.
  */
 bool senderHelp(char* buffer, int n){
   int index=0;

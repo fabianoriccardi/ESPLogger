@@ -5,54 +5,46 @@
 // othewise you can call the method begin(..) (only for ESP32)
 #include <SD.h>
 
-#ifdef ESP8266 
-const int csPin = D4;
-#else
-const int csPin = 16;
-#endif
+// Specify CS (chip select) pin
+const int csPin = 5;
 
-// in seconds
+// flush period, in seconds
 const int period = 30;
-
+// Path where the log is placed
 const String filepath = "/myLog.log";
 
 LoggerSD myLog(filepath);
 
-// This class takes care to flush "myLog" object every period 
+// This class takes care to flush "myLog" object every "period" 
 LoggerRoutine myLogRun(myLog, period);
-
-
-/** 
- * Event generation and management 
- */
 
 // Event generator, this could be implemented in the main loop
 Ticker somethingHappens;
 
-// in seconds
-float eventFrequency = 1.5;
+// Event generation period, in seconds
+float eventPeriod = 1.5;
 
-// This is the variable event to myLog
+// Variable to be logged
 int counter = 0;
 
 void somethingHappening(){
   counter++;
   
-  // counter is a multiple of 4, myLog it!
+  // counter is a multiple of 3, myLog it!
   if(counter%3==0){
-    Serial.println(String("Oh, ->") + counter + "<- is just happened");
+    Serial.println(String("Hey, event ->") + counter + "<- is just happened");
     myLog.append(String("val:") + counter);
     Serial.println(String("Now the log takes ") + myLog.getActualSize() + "/" + myLog.getSizeLimit());
   }
-  somethingHappens.attach(eventFrequency, somethingHappening);
 }
 
 void setup() {
   Serial.begin(115200);
   while(!Serial);
   Serial.println();
-  Serial.println("Log on SD Example");
+  Serial.println("ESP Logger - Log on SD  (with logger routine)");
 
+  // Check if the microSD is connected
   Serial.print("Initializing SD card... ");
   if (!SD.begin(csPin)) {
     Serial.println("Failed!");
@@ -62,23 +54,23 @@ void setup() {
 
   // Effectively working only on ESP32
   myLog.begin(csPin);
-  
-  myLog.setSizeLimit(1000, false);
+  myLog.setSizeLimit(1000);
   myLog.setSizeLimitPerChunk(60);
   myLog.setFlusherCallback(senderHelp);
-  somethingHappens.attach(eventFrequency, somethingHappening);
-
+  
+  Serial.println("Starting to log...");
+  somethingHappens.attach(eventPeriod, somethingHappening);
   myLogRun.begin(true);
 }
 
 void loop() {}
 
 /**
- * Callback implementing the log flushing.
- * In this case log flushing is performed on the Serial interface, but you can easily 
- * write your own implementation for Wifi connection. 
- * 
- * NOTE: This example simulates a channel failure.
+ * Flush a chuck of logged records. To exemplify, the records are
+ * flushed on Serial, but you are free to modify it to send data
+ * over the network.
+ *
+ * NOTE: This example simulates a channel that sometimes may fail.
  */
 bool senderHelp(char* buffer, int n){
   static int failPacketCounter = 0;

@@ -1,62 +1,60 @@
 #include <logger_spiffs.h>
 #include <logger_routine.h>
 
-// in second
+// flush period, in second
 const int period = 30;
 // Path where the log is placed
 const String filepath = "/log/mylog.log";
 
 LoggerSPIFFS myLog(filepath);
 
-// This class takes care of flushing the log file every period 
+// This class takes care of flushing the log file every "period"
 LoggerRoutine logRun(myLog, period);
-
-
-/** 
- * Event generation and management 
- */
 
 // Event generator, this could be implemented in the main loop
 Ticker somethingHappens;
 
-// in seconds
-float eventFrequency = 1.5;
+// Event generation period, in seconds
+float eventPeriod = 1.5;
 
-// This is the variable event to log
+// Variable to be logged
 int counter = 0;
 
 void somethingHappening(){
   counter++;
   
-  // counter is a multiple of 4, log it!
+  // counter is a multiple of 3, log it!
   if(counter%3==0){
-    Serial.println(String("Oh, ->") + counter + "<- is just happened");
+    Serial.println(String("Hey, event ->") + counter + "<- is just happened");
     myLog.append(String("val:") + counter);
     Serial.println(String("Now the log takes ") + myLog.getActualSize() + "/" + myLog.getSizeLimit());
   }
-  somethingHappens.attach(eventFrequency, somethingHappening);
 }
 
 void setup() {
   Serial.begin(115200);
   while(!Serial);
-  Serial.println("Log on SPIFFS example");
+  Serial.println();
+  Serial.println("ESP Logger - Log on internal flash memory (with logger routine)");
   
   myLog.begin();
-  myLog.setSizeLimit(1000, false);
+  myLog.setSizeLimit(1000);
   myLog.setSizeLimitPerChunk(60);
   myLog.setFlusherCallback(senderHelp);
-  somethingHappens.attach(eventFrequency, somethingHappening);
-
+  
+  Serial.println("Starting to log...");
+  somethingHappens.attach(eventPeriod, somethingHappening);
   logRun.begin(true);
 }
 
 void loop() {}
 
 /**
- * Callback to support the flushing.
- * In this case the flushing is performed on the Serial interface, but you can easily 
- * replace this behaviour with a wireless connection or whatever function. 
+ * Flush a chuck of logged records. To exemplify, the records are
+ * flushed on Serial, but you are free to modify it to send data
+ * over the network.
+ *
+ * NOTE: This example simulates a channel that sometimes may fail.
  */
 bool senderHelp(char* buffer, int n){
   static int failPacketCounter = 0;
