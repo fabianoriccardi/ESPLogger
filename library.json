@@ -1,0 +1,55 @@
+{
+  "name": "ESP Logger",
+  "version": "1.3.0",
+  "authors": {
+    "name": "Fabiano Riccardi",
+    "email": "fabiano.riccardi@outlook.com"
+  },
+  "description": "ESP Logger aims to provide an easy way to collect data. You can attach your customized callback to flush data to external endpoint.",
+  "keywords": [
+    "data-collection",
+    "esp8266",
+    "esp32",
+    "data",
+    "logging",
+    "logger"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fabiuz7/esp-logger-lib"
+  },
+  "licence": "GPL-2.0-only",
+  "frameworks": [
+    "arduino"
+  ],
+  "platforms": [
+    "espressif8266",
+    "espressif32"
+  ],
+  "build": {
+    "libLDFMode": "deep"
+  },
+  "examples": [
+    {
+      "name": "esp_logger",
+      "base": "examples/esp_logger",
+      "files": [
+        "esp_logger.ino"
+      ]
+    },
+    {
+      "name": "esp_logger_runtime",
+      "base": "examples/esp_logger_runtime",
+      "files": [
+        "esp_logger_runtime.ino"
+      ]
+    },
+    {
+      "name": "esp_logger_runtime_sd",
+      "base": "examples/esp_logger_runtime_sd",
+      "files": [
+        "esp_logger_runtime_sd.ino"
+      ]
+    }
+  ]
+}
