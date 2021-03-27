@@ -337,19 +337,12 @@ bool LoggerSD::begin(int csPin){
 }
 
 unsigned int LoggerSD::getActualSize(){
-  unsigned int result = 0;
-  File file;
-  // Trick to be sure that an empty file exist, and it's dimension is 0 (BUG in esp32)
   if(!SD.exists(filePath)){
-    file=SD.open(filePath, FILE_WRITE);
-    if(file){
-        file.close();
-    }else{
-        if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] getActualSize() open log file error!");
-    }
+    return 0;
   }
 
-  file=SD.open(filePath, FILE_READ);
+  unsigned int result = 0;
+  File file=SD.open(filePath, FILE_READ);
   if(file){
     result=file.size();
     file.close();

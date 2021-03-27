@@ -286,19 +286,12 @@ bool LoggerSPIFFS::begin(){
 }
 
 unsigned int LoggerSPIFFS::getActualSize(){
-  unsigned int result=0;
-  File file;
-  // Trick to be sure that an empty file exist, and it's dimension is 0 (BUG in esp32)
   if(!ESP_LOGGER_FLASH_FS.exists(filePath)){
-    file=ESP_LOGGER_FLASH_FS.open(filePath,"w");
-    if(file){
-      file.close();
-    }else{
-      if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] getActualSize() open log file error!");
-    }
+    return 0;
   }
 
-  file=ESP_LOGGER_FLASH_FS.open(filePath, "r");
+  unsigned int result=0;
+  File file=ESP_LOGGER_FLASH_FS.open(filePath, "r");
   if(file){
     result=file.size();
     file.close();
