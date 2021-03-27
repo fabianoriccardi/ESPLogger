@@ -84,7 +84,8 @@ Logger::Logger(String file, DebugLevel debugVerbosity):
           flusher([](char*,int){
                     Serial.println("[ESP LOGGER] Default flusher, please define your own flusher"); 
                     return true;
-                  })
+                  }),
+          full(false)
 {
 };
 

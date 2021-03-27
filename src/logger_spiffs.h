@@ -50,6 +50,7 @@ class LoggerSPIFFS : public Logger{
 
   unsigned int getActualSize();
 
+  bool isFull();
 };
 
 #endif // END LOGGER_SPIFFS_H

@@ -51,6 +51,7 @@ class LoggerSD : public Logger{
 
   unsigned int getActualSize();
 
+  bool isFull();
 };
 
 #endif // END LOGGER_SD_H

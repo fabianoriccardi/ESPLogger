@@ -119,6 +119,13 @@ class Logger{
    */
   unsigned int getSizeLimit();
 
+  /**
+   * Tell if the log is full, that means it failed to append() a record
+   * due to size limit of log. Flush or reset will empty the log and change
+   * this value.
+   */
+  virtual bool isFull() = 0;
+
   virtual ~Logger();
   
   protected:
@@ -161,6 +168,7 @@ class Logger{
    */
   bool (*flusher)(char*, int);
 
+  bool full;
 };
 
 #endif // END LOGGER_H

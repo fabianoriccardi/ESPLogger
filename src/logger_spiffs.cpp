@@ -110,6 +110,7 @@ bool LoggerSPIFFS::append(const char* record, bool timestamp){
   }
 
   if(totalFileLength>sizeLimit){
+    full = true;
     if (debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] You have reached the maximum file length, the record can't be stored. Please flush the log.");
     f.close();
     return false;
@@ -127,7 +128,9 @@ bool LoggerSPIFFS::append(const char* record, bool timestamp){
 
 void LoggerSPIFFS::reset(){
   if (debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] Resetting the log file...");
-  ESP_LOGGER_FLASH_FS.remove(filePath);
+  if(ESP_LOGGER_FLASH_FS.remove(filePath)){
+    full = false;
+  }
 }
 
 static void saveChunk(File& file, char* buffer, int nBuffer){
@@ -182,6 +185,7 @@ bool LoggerSPIFFS::flush(){
         doRead = false;  
       }
       bufferFull = false;
+      // Build the chunk
       while((f.available() || !doRead) && !bufferFull){
         // '\n' is not included in the returned string, but the last char '\r' is
         if(doRead){
@@ -241,11 +245,13 @@ bool LoggerSPIFFS::flush(){
             if (debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] The old file is deleted!");
             if(ESP_LOGGER_FLASH_FS.rename(tempFilePath, filePath)){
               if (debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] The temp file is moved!");
+              full = false;
             }else{
               if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] The temp file wasn't moved");
             }
           }else{
-            if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] The temp file is NOT deleted!");
+            if (debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] The temp file is NOT deleted!");
+            full = false;
           }
           //return false; //refer https://github.com/fabiuz7/esp-logger-lib/issues/5
         }else{
@@ -258,7 +264,13 @@ bool LoggerSPIFFS::flush(){
       }
     }else{
       f.close();
-      ESP_LOGGER_FLASH_FS.remove(filePath);
+
+      if(ESP_LOGGER_FLASH_FS.remove(filePath)){
+        full = false;
+      }else{
+        // Technically this should not happen
+        if (debugVerbosity>=DebugLevel::FATAL) Serial.println("[ESP LOGGER] Successful sending, but I cant remove the file...");
+      }
     }
 
     // Free the memory buffer
@@ -297,4 +309,8 @@ unsigned int LoggerSPIFFS::getActualSize(){
     file.close();
   }
   return result;
+}
+
+bool LoggerSPIFFS::isFull(){
+  return full;
 }
