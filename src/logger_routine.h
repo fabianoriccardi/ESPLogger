@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2018-2020 - Fabiano Riccardi                            *
+ *   Copyright (C) 2018-2021 - Fabiano Riccardi                            *
  *                                                                         *
  *   This file is part of ESP Logger library.                              *
  *                                                                         *
