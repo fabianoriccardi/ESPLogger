@@ -1,19 +1,21 @@
 # ESP Logger for Arduino IDE
 
-ESP Logger is an Arduino library offering a very simple but complete interface to log events on ESP32 and ESP8266. Given the connection-oriented applications making use of these MCUs, ESP Logger offers a simple way to buffer data and send them efficiently through the most appropriate communication protocol.
+[![arduino-library-badge](https://www.ardu-badge.com/badge/ESP%20Logger.svg)](https://www.ardu-badge.com/badge/ESP%20Logger.svg) ![Compile Library Examples](https://github.com/fabiuz7/esp-logger-lib/actions/workflows/LibraryBuild.yml/badge.svg)
+
+ESP Logger is an Arduino library offering a simple but complete interface to log events on ESP32 and ESP8266. Given the connection-oriented applications using these MCUs, ESP Logger provides a simple way to buffer data and efficiently send them through the most appropriate communication protocol.
 
 ## Motivations
 
-Nowadays, tons of projects are related to the IoT world: this implies network connection and data collection. ESP8266 and ESP32 were born with native WiFi paired with effective libraries to communication. These libraries are very mature both in NONOS framework as well as in Arduino environment. Unfortunately, I noticed that often there is the need to rewrite everything about the data collection. For example, the existing libraries support perfectly raw files, but for every project, you should implement every basic control such as check if the file is open, decide the open mode, check lines terminator, check if the file is ended, check if there is enough space and so on. In my personal opinion, managing all these details every time is boring and sloppy: avoiding them would be plus feature in many projects. I think that raising the abstraction level is an unquestionable benefit for Makers interested in prototyping advanced connected objects. Moreover, abstractions always increase code sharing and reusing, without forgetting that is a key point to promote communication among people, fundamental in Arduino-like communities. Before ending up with my library, I searched on the Internet to discover a library answering to the aforementioned requirements. I didn't find anything matching all of them because, usually, data collection projects implement their custom solution, and often, searching for "log" term, you will found a lot of results regarding software development and debugging, not concrete data collection.
+Nowadays, tons of projects are related to the IoT world: this implies network connection and data collection. ESP8266 and ESP32 were born with native WiFi paired with effective libraries to communicate. These libraries are very mature both in NONOS framework as well as in Arduino environment. Unfortunately, I noticed that often there is the need to rewrite everything about the data collection. For example, the existing libraries support perfectly raw files, but for every project, you should implement every basic control such as check if the file is open, decide the open mode, check lines terminator, check if the file is ended, check if there is enough space and so on. In my personal opinion, managing all these details every time is tedious and sloppy: avoiding them would be a plus feature in many projects. Raising the abstraction level is an unquestionable benefit for Makers interested in prototyping advanced connected objects. Moreover, abstractions always increase code sharing and reuse, without forgetting that it is a key point to promote communication among people, fundamental in Arduino-like communities. Before ending up with my library, I searched on the Internet to discover a library answering the requirements above. I didn't find anything matching all of them because, usually, data collection projects implement their custom solution, and often, searching for "log" term, you will found a lot of results regarding software development and debugging, not concrete data collection.
 
-For all these reasons, I have developed ESP Logger library, that is built on top of flash memory and files, leaving you the decision on when logging, when flushing data, and how to flush data.
+For all these reasons, I have developed ESP Logger library, which is built on top of flash memory and files, leaving you the decision on when logging, when flushing data, and how to flush data.
 
 ## Features
 
 1. Log on internal flash and or on SD card*
 2. Methods to monitor and limit log size
 3. Support for multiple log files to store different information
-4. Callback to flush your data over the network. 
+4. Callback to flush your data over the network
 5. Full control on when and how to flush your data
 6. Agnostic to the data format, the atomic measurement unit is *Record*
 
@@ -21,7 +23,7 @@ For all these reasons, I have developed ESP Logger library, that is built on top
 
 ## Installation
 
-This is a regular Arduino library, so installation is straightforward from the Library Manager. If you desire the latest Github version, you can download this repo and copy the entire folder in your Arduino Library directory. More info at [Arduino Library](https://www.arduino.cc/en/Guide/Libraries).
+The latest version of ESP Logger is available on Arduino Library Manager and on [PlatformIO registry](https://platformio.org/lib/show/5879/ESP%20Logger).
 
 ## Usage
 
@@ -55,7 +57,7 @@ It returns true if flush succeeds (hence the log file is emptied), false otherwi
 
 ### Other APIs and examples
 
-To complete the overview of the library, you may look at the *examples* folder, in which you can find some working examples to understand how easy is to master ESP Logger library. For advanced usage, the full library specifications can be found directly in *commented* header (*.h) files.
+To complete the library's overview, you may look at the *examples* folder, in which you can find some working examples to understand how easy it is to master ESP Logger. Look at *commented* header files (*.h) for the full library specifications.
 
 ## Limitations
 

@@ -10,7 +10,8 @@ const int csPin = 5;
 
 // flush period, in seconds
 const int period = 30;
-// Path where the log is placed
+// Path where the log is placed. If the log resides in not-root folder,
+// you must ensure the path exists.
 const String filepath = "/myLog.log";
 
 LoggerSD myLog(filepath);
