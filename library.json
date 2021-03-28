@@ -38,6 +38,13 @@
       ]
     },
     {
+      "name": "esp_logger_avanced",
+      "base": "examples/esp_logger_advanced",
+      "files": [
+        "esp_logger_advanced.ino"
+      ]
+    },
+    {
       "name": "esp_logger_runtime",
       "base": "examples/esp_logger_runtime",
       "files": [
