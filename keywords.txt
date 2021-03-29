@@ -14,3 +14,4 @@ flush	KEYWORD2
 getActualSize	KEYWORD2
 getSizeLimit	KEYWORD2
 setPeriod	KEYWORD2
+isFull	KEYWORD2

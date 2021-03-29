@@ -1,9 +1,12 @@
 /**
- * Log on flash memory an event every 1.5 seconds. Every 30 seconds,
- * the log file is flushed over serial port.
+ * Log on flash memory an event every 1 second.
+ * You can see that after some logs, the available space ends, and the logger
+ * refuses to log more records until it is flushed.
  *
  * NOTE: the first time you run this sketch or when changing the file system
- *       layout, explicit formatting is recommended.
+ *       layout, you should explicitly format the flash memory:
+ * 
+ *          SPIFFS.format()
  */
 #include <Ticker.h>
 #include <logger_spiffs.h>
