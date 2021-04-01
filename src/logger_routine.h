@@ -1,14 +1,14 @@
 /***************************************************************************
- *   Copyright (C) 2018-2021 - Fabiano Riccardi                            *
+ *   Copyright (C) 2018-2021  Fabiano Riccardi                             *
  *                                                                         *
- *   This file is part of ESP Logger library.                              *
+ *   This file is part of ESP Logger.                                      *
  *                                                                         *
  *   ESP Logger is free software; you can redistribute                     *
  *   it and/or modify it under the terms of the GNU General Public         *
  *   License as published by the Free Software Foundation; either          *
  *   version 2 of the License, or (at your option) any later version.      *
  *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
+ *   ESP Logger is distributed in the hope that it will be useful,         *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
  *   GNU General Public License for more details.                          *
@@ -24,7 +24,7 @@
  *   Public License.                                                       *
  *                                                                         *
  *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, see <http://www.gnu.org/licenses/>   *
+ *   along with ESP Logger; if not, see <http://www.gnu.org/licenses/>     *
  ***************************************************************************/
 #ifndef LOGGER_ROUTINE_H
 #define LOGGER_ROUTINE_H
