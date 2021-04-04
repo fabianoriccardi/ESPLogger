@@ -82,7 +82,7 @@ class Logger{
   /**
    * Sets the callback used during the flushing.
    */
-  void setFlusherCallback(bool (*foo)(char*, int) );
+  void setFlusherCallback(bool (*foo)(char*, int));
 
   /** 
    * Append a record to the target file.
@@ -120,9 +120,8 @@ class Logger{
   unsigned int getSizeLimit();
 
   /**
-   * Tell if the log is full, that means it failed to append() a record
-   * due to size limit of log. Flush or reset will empty the log and change
-   * this value.
+   * Tell if the log is full.
+   * This value will altered only by append(), flush() or reset(). 
    */
   virtual bool isFull() = 0;
 

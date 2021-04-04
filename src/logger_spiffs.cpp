@@ -128,8 +128,12 @@ bool LoggerSPIFFS::append(const char* record, bool timestamp){
 
 void LoggerSPIFFS::reset(){
   if (debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] Resetting the log file...");
-  if(ESP_LOGGER_FLASH_FS.remove(filePath)){
-    full = false;
+  if(ESP_LOGGER_FLASH_FS.exists(filePath)){
+    if(ESP_LOGGER_FLASH_FS.remove(filePath)){
+      full = false;
+    }
+  }else{
+    full=false;
   }
 }
 

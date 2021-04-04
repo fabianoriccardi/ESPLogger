@@ -117,8 +117,12 @@ bool LoggerSD::append(const char* record, bool timestamp){
 
 void LoggerSD::reset(){
   if (debugVerbosity>=DebugLevel::WARN) Serial.print("[ESP LOGGER] Resetting the log file... ");
-  if(SD.remove(filePath)){
-    full = false;
+  if(SD.exists(filePath)){
+    if(SD.remove(filePath)){
+      full = false;
+    }
+  }else{
+    full=false;
   }
   if (debugVerbosity>=DebugLevel::WARN) Serial.println("Done!");
 }
