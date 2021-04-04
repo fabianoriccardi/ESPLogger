@@ -26,28 +26,19 @@
  *   You should have received a copy of the GNU General Public License     *
  *   along with ESP Logger; if not, see <http://www.gnu.org/licenses/>     *
  ***************************************************************************/
-#include "logger_spiffs.h"
+#include "logger_fs.h"
 
-#include <FS.h>
+LoggerFS::LoggerFS(FS& fs, const char* file):
+    Logger(file), fs(fs) {};
 
-#if defined(ESP8266)
+LoggerFS::LoggerFS(FS& fs, String file):
+    Logger(file), fs(fs) {};
 
-#define ESP_LOGGER_FLASH_FS_SPIFFS 
-//#define ESP_LOGGER_FLASH_FS_LITTLEFS 
+bool LoggerFS::begin(){
+  return true;
+}
 
-#ifdef ESP_LOGGER_FLASH_FS_SPIFFS
-#define ESP_LOGGER_FLASH_FS SPIFFS
-#elif defined(ESP_LOGGER_FLASH_FS_LITTLEFS)
-#define ESP_LOGGER_FLASH_FS LittleFS
-#include <LittleFS.h>
-#endif
-
-#elif defined(ESP32)
-#define ESP_LOGGER_FLASH_FS SPIFFS
-#include <SPIFFS.h>
-#endif
-
-bool LoggerSPIFFS::append(const char* record, bool timestamp){
+bool LoggerFS::append(const char* record, bool timestamp){
   // Max 10 digits in an integer
   char timestampString[11] = {0};
   if(timestamp){
@@ -88,14 +79,14 @@ bool LoggerSPIFFS::append(const char* record, bool timestamp){
   }
   
   // Trick to be sure that an empty file exist, and it's dimension is 0 (BUG in esp32)
-  if(!ESP_LOGGER_FLASH_FS.exists(filePath)){
-    File file=ESP_LOGGER_FLASH_FS.open(filePath,"w");
+  if(!fs.exists(filePath)){
+    File file=fs.open(filePath,"w");
     if(file){
       file.close();
     }
   }
 
-  File f=ESP_LOGGER_FLASH_FS.open(filePath,"a");
+  File f=fs.open(filePath,"a");
   if(!f) {
     if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] Opening log file error!");
     return false;
@@ -126,10 +117,10 @@ bool LoggerSPIFFS::append(const char* record, bool timestamp){
   return true;
 }
 
-void LoggerSPIFFS::reset(){
+void LoggerFS::reset(){
   if (debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] Resetting the log file...");
-  if(ESP_LOGGER_FLASH_FS.exists(filePath)){
-    if(ESP_LOGGER_FLASH_FS.remove(filePath)){
+  if(fs.exists(filePath)){
+    if(fs.remove(filePath)){
       full = false;
     }
   }else{
@@ -158,15 +149,15 @@ static void saveRemainings(File& destination, File& source){
   }
 }
 
-bool LoggerSPIFFS::flush(){
+bool LoggerFS::flush(){
   if(debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] Flushing the log file...");
   
-  if(!ESP_LOGGER_FLASH_FS.exists(filePath)){
+  if(!fs.exists(filePath)){
     if (debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] File doesn't exist, nothing to flush..");
     return true;
   }
   
-  File f=ESP_LOGGER_FLASH_FS.open(filePath,"r");
+  File f=fs.open(filePath,"r");
   if(f){
     bool successFlush=true;
     String line;
@@ -238,16 +229,16 @@ bool LoggerSPIFFS::flush(){
         if(debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] Partial unsuccessful sending!");
         // I have to discard the successfully sent log, and save the remainings.
         String tempFilePath = filePath+".temp";
-        File tempFile=ESP_LOGGER_FLASH_FS.open(tempFilePath,"w");
+        File tempFile=fs.open(tempFilePath,"w");
         if(f){
           saveChunk(tempFile,buffer,nBuffer);
           saveRemainings(tempFile, f);
           tempFile.close();
           f.close();
           // Riordino i file
-          if(ESP_LOGGER_FLASH_FS.remove(filePath)){
+          if(fs.remove(filePath)){
             if (debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] The old file is deleted!");
-            if(ESP_LOGGER_FLASH_FS.rename(tempFilePath, filePath)){
+            if(fs.rename(tempFilePath, filePath)){
               if (debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] The temp file is moved!");
               full = false;
             }else{
@@ -269,7 +260,7 @@ bool LoggerSPIFFS::flush(){
     }else{
       f.close();
 
-      if(ESP_LOGGER_FLASH_FS.remove(filePath)){
+      if(fs.remove(filePath)){
         full = false;
       }else{
         // Technically this should not happen
@@ -287,27 +278,13 @@ bool LoggerSPIFFS::flush(){
   return false;
 }
 
-LoggerSPIFFS::LoggerSPIFFS(String file, DebugLevel debugVerbosity): Logger(file, debugVerbosity){
-};
-
-bool LoggerSPIFFS::begin(){
-  if (debugVerbosity>=DebugLevel::WARN) Serial.print("[ESP LOGGER] Filesystem initialization... ");
-  if(!ESP_LOGGER_FLASH_FS.begin()){
-    if (debugVerbosity>=DebugLevel::WARN) Serial.print("Error in starting file system, you could try to format it...");
-    return false;
-  }
-
-  if (debugVerbosity>=DebugLevel::WARN) Serial.println("Done!");
-  return true;
-}
-
-unsigned int LoggerSPIFFS::getActualSize(){
-  if(!ESP_LOGGER_FLASH_FS.exists(filePath)){
+unsigned int LoggerFS::getActualSize(){
+  if(!fs.exists(filePath)){
     return 0;
   }
 
   unsigned int result=0;
-  File file=ESP_LOGGER_FLASH_FS.open(filePath, "r");
+  File file=fs.open(filePath, "r");
   if(file){
     result=file.size();
     file.close();
@@ -315,6 +292,6 @@ unsigned int LoggerSPIFFS::getActualSize(){
   return result;
 }
 
-bool LoggerSPIFFS::isFull(){
+bool LoggerFS::isFull(){
   return full;
 }

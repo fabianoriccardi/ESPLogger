@@ -26,18 +26,21 @@
  *   You should have received a copy of the GNU General Public License     *
  *   along with ESP Logger; if not, see <http://www.gnu.org/licenses/>     *
  ***************************************************************************/
-#ifndef LOGGER_SPIFFS_H
-#define LOGGER_SPIFFS_H
+#ifndef LOGGER_FS_H
+#define LOGGER_FS_H
 
 #include "logger.h"
 
+#include <FS.h>
+
 /**
- * For further details look at the base class Logger
+ * Implementation of Logger based on FS class provided by standard Arduino APIs.
  */
-class LoggerSPIFFS : public Logger{
+class LoggerFS : public Logger{
   public:
   
-  LoggerSPIFFS(String file, DebugLevel debugVerbosity = DebugLevel::ERROR);
+  LoggerFS(FS& fs, const char* file);
+  LoggerFS(FS& fs, String file);
 
   bool begin();
 
@@ -51,6 +54,9 @@ class LoggerSPIFFS : public Logger{
   unsigned int getActualSize();
 
   bool isFull();
+
+private:
+  FS& fs;
 };
 
 #endif // END LOGGER_SPIFFS_H

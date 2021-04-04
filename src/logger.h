@@ -50,10 +50,8 @@ class Logger{
   Logger(String file, DebugLevel debugVerbosity = DebugLevel::ERROR);
 
   /**
-   * Start the Filesystem, call this before starting to append or
-   * flush, return true is case of success, false otherwise.
-   * 
-   * NOTE: Actually this is just a wrapper for begin(..) method.
+   * Check the logger configuration.
+   * Return true if logger can start, false otherwise. 
    */
   virtual bool begin() = 0;
 

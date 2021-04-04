@@ -1,19 +1,19 @@
 /**
- * Log on internal flash memory an event every 1 second.
- * You can see that after some logs, the available space ends, and the logger
- * refuses to log more records until it is flushed.
+ * Log on internal flash memory an event every 1.5 seconds. Every 30 seconds,
+ * the log is flushed over serial port.
  *
  * NOTE: the first time you run this sketch or when changing the file system
  *       layout, you should explicitly format the flash memory:
  * 
  *          SPIFFS.format()
  */
+#include <Ticker.h>
 #include <logger_fs.h>
 #ifdef ESP32
 #include <SPIFFS.h>
 #endif
 
-// Specify the path where the log is placed and the target filesystem.
+// Specify the path where the log is placed
 LoggerFS myLogger(SPIFFS, "/log/data.log");
 
 // Event generation period, in millisecond
@@ -21,49 +21,49 @@ int periodEvent = 1500;
 // Flush period, in millisecond
 int periodFlush = 30000;
 
+int counter = 0;
+
 void event(){
-  // Variable to be logged
-  static int counter = 0;
   counter++;
   
-  Serial.printf("Hey, event ->%d<- is just happened", counter);
-  char buffer[15];
-  snprintf(buffer, 15, "value: %d", counter);
-  bool success = myLogger.append(buffer);
-  if(success){
-    Serial.println("Event stored!");
-  }else {
-    if(myLogger.isFull()){
-      Serial.println("Event NOT stored! You had filled the available space, flush or reset the log");
-    }else{
-      Serial.println("Event NOT stored!");
-    }
-  }
+  Serial.print("Hey, event ->");
+  Serial.print(counter);
+  Serial.println("<- is just happened");
+  
+  String record = String("val:") + counter;
+  myLogger.append(record.c_str());
 }
+
+unsigned int prevTimeFlush = 0;
+unsigned int prevTimeEvent = 0;
 
 void setup() {
   Serial.begin(115200);
   while(!Serial);
   Serial.println();
-  Serial.println("ESP Logger - Advanced Example");
-
+  Serial.println("ESP Logger - Basic Example");
+  
   // Maybe you need to format the flash before using it
   //SPIFFS.format();
 
-  myLogger.setSizeLimit(100);
+  if(SPIFFS.begin()){
+    Serial.println("Filesystem mounted successfully");
+  }else{
+    Serial.println("Filesystem NOT mounted. System halted");
+    while(1) delay(100);
+  }
+  
   myLogger.setFlusherCallback(senderHelp);
   myLogger.begin();
 
   Serial.println("Starting to log...");
 }
 
-unsigned int prevTimeFlush = 0;
-unsigned int prevTimeEvent = 0;
-
 void loop() {
   // This loop is the logger controller, it decides
   // when it's time to flush.
   if (millis() - prevTimeFlush > periodFlush){
+    Serial.println("Time to flush:");
     prevTimeFlush += periodFlush;
     myLogger.flush();
   }
@@ -75,9 +75,8 @@ void loop() {
 }
 
 /**
- * Flush a chuck of logged records. To exemplify, the records are
- * flushed on Serial, but you are free to modify it to send data
- * over the network.
+ * Flush a chunck of logged records.
+ * In this example, the records are trivially flushed on Serial.
  */
 bool senderHelp(char* buffer, int n){
   int index=0;
