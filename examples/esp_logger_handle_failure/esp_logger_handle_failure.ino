@@ -1,7 +1,9 @@
 /**
- * Log on internal flash memory an event every 1.5 second.
+ * Log on internal flash memory an event every 1 second.
  * You can see that after some logs, the available space ends, and the logger
- * refuses to log more records until it is flushed.
+ * refuses to log more records until it is flushed. Moreover, the flush process
+ * simulates a random failure, so the log may partially be emptied,
+ * discarding only the chunks marked as "flushed".
  * For more information about the available file systems and differences,
  * look at the readme.
  *
@@ -20,9 +22,9 @@
 LoggerFS myLogger(SPIFFS, "/data.log");
 
 // Event generation period, in millisecond
-unsigned int periodEvent = 1500;
+unsigned int periodEvent = 1000;
 // Flush period, in millisecond
-unsigned int periodFlush = 30000;
+unsigned int periodFlush = 20000;
 
 void event(){
   // Variable to be logged
@@ -48,7 +50,7 @@ void setup() {
   Serial.begin(115200);
   while(!Serial);
   Serial.println();
-  Serial.println("ESP Logger - Advanced Example");
+  Serial.println("ESP Logger - Handle Failure");
 
   // Maybe you need to format the flash before using it
   //SPIFFS.format();
@@ -60,7 +62,7 @@ void setup() {
     while(1) delay(100);
   }
 
-  myLogger.setSizeLimit(100);
+  myLogger.setSizeLimit(200);
   myLogger.setFlusherCallback(senderHelp);
   myLogger.begin();
 
@@ -86,19 +88,36 @@ void loop() {
 }
 
 /**
- * Flush a chuck of logged records. To exemplify, the records are
- * flushed on Serial, but you are free to modify it to send data
- * over the network.
+ * Flush a chunk of logged records.
+ * This function simulate a random failure. When this happen, ESP Logger
+ * retains the remaing log for the next flush.
  */
 bool senderHelp(char* buffer, int n){
-  int index=0;
-  // Check if there is another string to print
-  while(index<n && strlen(&buffer[index])>0){
-    Serial.print("---");
-    int bytePrinted=Serial.print(&buffer[index]);
-    Serial.println("---");
-    // +1, the '\0' is processed
-    index += bytePrinted+1;
+  static int failPacketCounter = 0;
+  static int failPacket=random(3,5);
+
+  // This part is the example about the management of sending failure.
+  if(failPacketCounter==failPacket){
+    failPacket=random(3,5);
+    failPacketCounter = 0;
+    Serial.println(String("Cannot send chuck. Next failure happens in: ") + failPacket + " chunks");
+    
+    // Tell to logger that current chunk wasn't properly handled
+    return false;
+  }else{
+    Serial.println("Elaborate chunk:");
+    int index=0;
+    // Check if there is another string to print
+    while(index<n && strlen(&buffer[index])>0){
+      Serial.print("  ---");
+      int bytePrinted=Serial.print(&buffer[index]);
+      Serial.println("---");
+      // +1, the '\0' is processed
+      index += bytePrinted+1;
+    }
+    
+    failPacketCounter++;
+    // Tell to logger that current chunk was properly handled
+    return true;
   }
-  return true;
 }

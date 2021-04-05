@@ -65,8 +65,8 @@ void loop() {
   // This loop is the logger controller, it decides
   // when it's time to flush.
   if (millis() - prevTimeFlush > periodFlush){
-    Serial.println("Time to flush:");
     prevTimeFlush += periodFlush;
+    Serial.println("Time to flush");
     myLogger.flush();
   }
 
