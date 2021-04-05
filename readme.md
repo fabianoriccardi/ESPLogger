@@ -64,6 +64,8 @@ LoggerFS (the main class of the library) requires a target file system. At the t
 - `SD` (only for ESP32): the standard file system for micro SD cards on ESP32. It supports both FAT and FAT32. You have to `#include <SD.h>`. Note that in ESP8266 core, there is an `SD` class, but since it doesn't derive from `FS`, it doesn't work with ESP Logger. Actually, it is just a wrapper over SDFS, only for compatibility with older code.
 - `SDFS` (only for ESP8266): the standard file system for micro SD cards on ESP8266. It supports both FAT and FAT32. You have to `#include <SDFS.h>`.
 
+Remember to make sure that the path to log exists before calling begin. Some file systems create the necessary path when opening a file (like SPIFFS), other won't (like SD for esp32).
+
 ### Other APIs and examples
 
 To complete the library's overview, you may look at the *examples* folder, in which you can find some working examples to understand how easy it is to master ESP Logger. Look at *commented* header files (*.h) for the full library specifications.

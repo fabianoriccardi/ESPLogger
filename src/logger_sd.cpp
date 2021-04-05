@@ -336,19 +336,11 @@ LoggerSD::LoggerSD(String file, DebugLevel debugVerbosity): Logger(file, debugVe
 };
 
 bool LoggerSD::begin(){
-	return begin(SS);
-}
-
-bool LoggerSD::begin(int csPin){
-#ifdef ESP8266
-  if (debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] On ESP8266 this is not implemented, because multiple init are going to fail..");
-  return false;
-#endif  
-  if(!SD.begin(csPin)){
-    if (debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] Card Mount Failed");
-    return false;
+  if(filePath.lastIndexOf('/') == 0 || SD.exists(filePath.substring(0, filePath.lastIndexOf('/')))){
+    return true;
   }
-  return true;
+  if (debugVerbosity >= DebugLevel::ERROR) Serial.println("File path to log not exist!");
+  return false;
 }
 
 unsigned int LoggerSD::getActualSize(){

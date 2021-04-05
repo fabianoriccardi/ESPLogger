@@ -35,7 +35,11 @@ LoggerFS::LoggerFS(FS& fs, String file):
     Logger(file), fs(fs) {};
 
 bool LoggerFS::begin(){
-  return true;
+  if(filePath.lastIndexOf('/') == 0 || fs.exists(filePath.substring(0, filePath.lastIndexOf('/')))){
+    return true;
+  }
+  if (debugVerbosity >= DebugLevel::ERROR) Serial.println("File path to log not exist!");
+  return false;
 }
 
 bool LoggerFS::append(const char* record, bool timestamp){

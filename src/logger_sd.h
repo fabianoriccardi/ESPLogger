@@ -32,7 +32,7 @@
 #include "logger.h"
 
 /**
- * For further details look at the base class Logger
+ * Class to handle "SD" file system.
  */
 class LoggerSD : public Logger{
   public:

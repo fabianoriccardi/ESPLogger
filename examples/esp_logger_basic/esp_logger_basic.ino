@@ -1,7 +1,8 @@
 /**
  * Log on internal flash memory an event every 1.5 seconds. Every 30 seconds,
  * the log is flushed over serial port.
- * For more information about the available file systems, look at the readme.
+ * For more information about the available file systems and differences,
+ * look at the readme.
  *
  * NOTE: the first time you run this sketch or when changing the file system
  *       layout, you should explicitly format the flash memory:
@@ -14,12 +15,13 @@
 #endif
 
 // Specify the target file system and the path where the log is placed
-LoggerFS myLogger(SPIFFS, "/log/data.log");
+// NOTE: the path to log must exist!
+LoggerFS myLogger(SPIFFS, "/data.log");
 
 // Event generation period, in millisecond
-int periodEvent = 1500;
+unsigned int periodEvent = 1500;
 // Flush period, in millisecond
-int periodFlush = 30000;
+unsigned int periodFlush = 30000;
 
 int counter = 0;
 

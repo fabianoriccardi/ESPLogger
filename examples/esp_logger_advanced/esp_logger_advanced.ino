@@ -2,7 +2,8 @@
  * Log on internal flash memory an event every 1 second.
  * You can see that after some logs, the available space ends, and the logger
  * refuses to log more records until it is flushed.
- * For more information about the available file systems, look at the readme.
+ * For more information about the available file systems and differences,
+ * look at the readme.
  *
  * NOTE: the first time you run this sketch or when changing the file system
  *       layout, you should explicitly format the flash memory:
@@ -15,19 +16,20 @@
 #endif
 
 // Specify the target file system and the path where the log is placed
-LoggerFS myLogger(SPIFFS, "/log/data.log");
+// NOTE: the path to log must exist!
+LoggerFS myLogger(SPIFFS, "/data.log");
 
 // Event generation period, in millisecond
-int periodEvent = 1500;
+unsigned int periodEvent = 1500;
 // Flush period, in millisecond
-int periodFlush = 30000;
+unsigned int periodFlush = 30000;
 
 void event(){
   // Variable to be logged
   static int counter = 0;
   counter++;
   
-  Serial.printf("Hey, event ->%d<- is just happened", counter);
+  Serial.printf("Hey, event ->%d<- is just happened\n", counter);
   char buffer[15];
   snprintf(buffer, 15, "value: %d", counter);
   bool success = myLogger.append(buffer);
@@ -50,6 +52,13 @@ void setup() {
 
   // Maybe you need to format the flash before using it
   //SPIFFS.format();
+
+  if(SPIFFS.begin()){
+    Serial.println("Filesystem mounted successfully");
+  }else{
+    Serial.println("Filesystem NOT mounted. System halted");
+    while(1) delay(100);
+  }
 
   myLogger.setSizeLimit(100);
   myLogger.setFlusherCallback(senderHelp);
