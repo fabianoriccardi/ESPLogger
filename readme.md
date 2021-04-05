@@ -55,6 +55,15 @@ Please note that the flush() method guarantees that:
     
 It returns true if flush succeeds (hence the log file is emptied), false otherwise.
 
+### Filesystem
+
+LoggerFS (the main class of the library) requires a target file system. At the time of writing, there are few filesystems for Arduino framework with minor differences between ESP32 and ESP8266:
+
+- `SPIFFS`: this is the most popular filesystem for internal flash. On ESP32, you have to `#include <SPIFFS>`.
+- `LittleFS`: this will be the replacement meant for SPIFFS since it has higher performance and directory support. In ESP8266, it is already the preferred choice, while for ESP32, you have to include the [external library](https://github.com/lorol/LITTLEFS), or checking out the development branch for ESP32 Arduino core. You have to `#include <LittleFS.H>`.
+- `SD` (only for ESP32): the standard file system for micro SD cards on ESP32. It supports both FAT and FAT32. You have to `#include <SD.h>`. Note that in ESP8266 core, there is an `SD` class, but since it doesn't derive from `FS`, it doesn't work with ESP Logger. Actually, it is just a wrapper over SDFS, only for compatibility with older code.
+- `SDFS` (only for ESP8266): the standard file system for micro SD cards on ESP8266. It supports both FAT and FAT32. You have to `#include <SDFS.h>`.
+
 ### Other APIs and examples
 
 To complete the library's overview, you may look at the *examples* folder, in which you can find some working examples to understand how easy it is to master ESP Logger. Look at *commented* header files (*.h) for the full library specifications.

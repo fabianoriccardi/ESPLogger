@@ -2,6 +2,7 @@
  * Log on internal flash memory an event every 1 second.
  * You can see that after some logs, the available space ends, and the logger
  * refuses to log more records until it is flushed.
+ * For more information about the available file systems, look at the readme.
  *
  * NOTE: the first time you run this sketch or when changing the file system
  *       layout, you should explicitly format the flash memory:
@@ -13,7 +14,7 @@
 #include <SPIFFS.h>
 #endif
 
-// Specify the path where the log is placed and the target filesystem.
+// Specify the target file system and the path where the log is placed
 LoggerFS myLogger(SPIFFS, "/log/data.log");
 
 // Event generation period, in millisecond

@@ -1,19 +1,19 @@
 /**
  * Log on internal flash memory an event every 1.5 seconds. Every 30 seconds,
  * the log is flushed over serial port.
+ * For more information about the available file systems, look at the readme.
  *
  * NOTE: the first time you run this sketch or when changing the file system
  *       layout, you should explicitly format the flash memory:
  * 
  *          SPIFFS.format()
  */
-#include <Ticker.h>
 #include <logger_fs.h>
 #ifdef ESP32
 #include <SPIFFS.h>
 #endif
 
-// Specify the path where the log is placed
+// Specify the target file system and the path where the log is placed
 LoggerFS myLogger(SPIFFS, "/log/data.log");
 
 // Event generation period, in millisecond
