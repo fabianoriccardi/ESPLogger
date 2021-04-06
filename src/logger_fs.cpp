@@ -29,16 +29,16 @@
 #include "logger_fs.h"
 
 LoggerFS::LoggerFS(FS& fs, const char* file):
-    Logger(file), fs(fs) {};
+    Logger(file), fs(fs) {}
 
 LoggerFS::LoggerFS(FS& fs, String file):
-    Logger(file), fs(fs) {};
+    Logger(file), fs(fs) {}
 
 bool LoggerFS::begin(){
   if(filePath.lastIndexOf('/') == 0 || fs.exists(filePath.substring(0, filePath.lastIndexOf('/')))){
     return true;
   }
-  if (debugVerbosity >= DebugLevel::ERROR) Serial.println("File path to log not exist!");
+  if (debugVerbosity >= DebugLevel::ERROR) Serial.println("[ESP LOGGER] File path to log not exist!");
   return false;
 }
 
@@ -73,12 +73,12 @@ bool LoggerFS::append(const char* record, bool timestamp){
 
   // +1 because the terminating char of a chunk
   if(recordLength+1>sizeLimitPerChunk){
-    if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] @@@@ FATAL ERROR: This message is too large, it can't be sent because the limitation on chunk size, please change it before continue!!!");
+    if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] ERROR: This message is too large, it can't be sent because the limitation on chunk size, please change it before continue!!!");
     return false;
   }
 
   if(recordLength>sizeLimit){
-    if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] @@@@ FATAL ERROR: This message is too large, it can't be stored because the limitation on file size, please change it before continue!!!");
+    if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] ERROR: This message is too large, it can't be stored because the limitation on file size, please change it before continue!!!");
     return false;
   }
   
@@ -204,7 +204,7 @@ bool LoggerFS::flush(){
         if(len+nBuffer>sizeLimitPerChunk){
           if(debugVerbosity>=DebugLevel::WARN) Serial.println(String("[ESP LOGGER] Chunk buffer is almost full: ") + nBuffer + "/" + sizeLimitPerChunk + "byte, cannot store another message, it's time to send..");
           if(len>sizeLimitPerChunk){
-            if (debugVerbosity>=DebugLevel::ERROR) Serial.println(String("[ESP LOGGER] @@@@ FATAL ERROR: This message is too large (") + len + "/" + sizeLimitPerChunk + "), it can't be store in the chunk, please increase it's size") ;
+            if (debugVerbosity>=DebugLevel::ERROR) Serial.println(String("[ESP LOGGER] ERROR: This message is too large (") + len + "/" + sizeLimitPerChunk + "), it can't be store in the chunk, please increase it's size") ;
           } 
           bufferFull=true;
         }else{
@@ -261,10 +261,9 @@ bool LoggerFS::flush(){
         }else{
           if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] Writing temp log file error!");
         }
-        
       }else{
         // Nothing was sent, so I can close the file and exit from this function
-        if(debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] Unsuccessful sending! Nothing is flushed..");
+        if(debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] Nothing was flushed..");
       }
     }else{
       f.close();
@@ -273,7 +272,7 @@ bool LoggerFS::flush(){
         full = false;
       }else{
         // Technically this should not happen
-        if (debugVerbosity>=DebugLevel::FATAL) Serial.println("[ESP LOGGER] Successful sending, but I cant remove the file...");
+        if (debugVerbosity>=DebugLevel::FATAL) Serial.println("[ESP LOGGER] Flush successfully completed, but I cannot remove the file...");
       }
     }
 

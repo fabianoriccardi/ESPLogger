@@ -47,7 +47,7 @@ String Logger::translate(DebugLevel level){
     default:
       return "";
   }
-};
+}
 
 bool Logger::append(String record, bool timestamp){
   return append(record.c_str(), timestamp);
@@ -83,7 +83,6 @@ Logger::Logger(String file, DebugLevel debugVerbosity):
           debugVerbosity(debugVerbosity),
           onFlush(nullptr),
           full(false)
-{
-};
+{}
 
 Logger::~Logger(){}
