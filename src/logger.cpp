@@ -66,8 +66,8 @@ void Logger::setOneRecordPerChunk(bool one){
   oneRecordPerChunk=one;
 }
 
-void Logger::setFlusherCallback(bool (*callback)(char*, int)){
-  flusher=callback;
+void Logger::setFlushCallback(CallbackFlush callback){
+  onFlush=callback;
 }
 
 unsigned int Logger::getSizeLimit(){
@@ -81,10 +81,7 @@ Logger::Logger(String file, DebugLevel debugVerbosity):
           sizeLimitPerChunk(100),
           oneRecordPerChunk(false),
           debugVerbosity(debugVerbosity),
-          flusher([](char*,int){
-                    Serial.println("[ESP LOGGER] Default flusher, please define your own flusher"); 
-                    return true;
-                  }),
+          onFlush(nullptr),
           full(false)
 {
 };

@@ -63,7 +63,7 @@ void setup() {
   }
 
   myLogger.setSizeLimit(200);
-  myLogger.setFlusherCallback(senderHelp);
+  myLogger.setFlushCallback(flushHandler);
   myLogger.begin();
 
   Serial.println("Starting to log...");
@@ -92,7 +92,7 @@ void loop() {
  * This function simulate a random failure. When this happen, ESP Logger
  * retains the remaing log for the next flush.
  */
-bool senderHelp(char* buffer, int n){
+bool flushHandler(const char* buffer, int n){
   static int failPacketCounter = 0;
   static int failPacket=random(3,5);
 

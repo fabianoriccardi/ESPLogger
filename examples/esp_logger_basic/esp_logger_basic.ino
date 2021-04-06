@@ -55,7 +55,7 @@ void setup() {
     while(1) delay(100);
   }
   
-  myLogger.setFlusherCallback(senderHelp);
+  myLogger.setFlushCallback(flushHandler);
   myLogger.begin();
 
   Serial.println("Starting to log...");
@@ -80,7 +80,7 @@ void loop() {
  * Flush a chunck of logged records.
  * In this example, the records are trivially flushed on Serial.
  */
-bool senderHelp(char* buffer, int n){
+bool flushHandler(const char* buffer, int n){
   int index=0;
   // Check if there is another string to print
   while(index<n && strlen(&buffer[index])>0){

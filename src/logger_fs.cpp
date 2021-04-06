@@ -160,6 +160,11 @@ bool LoggerFS::flush(){
     if (debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] File doesn't exist, nothing to flush..");
     return true;
   }
+
+  if(onFlush == nullptr){
+    if (debugVerbosity>=DebugLevel::ERROR) Serial.println("[ESP LOGGER] No Flush callback");
+    return false;
+  }
   
   File f=fs.open(filePath,"r");
   if(f){
@@ -223,7 +228,7 @@ bool LoggerFS::flush(){
   
       // Second step: send chunk
       if(debugVerbosity>=DebugLevel::WARN) Serial.println("[ESP LOGGER] :::::::::::::::Second step: Chunk flushing...");
-      successFlush=flusher(buffer,nBuffer);
+      successFlush=onFlush(buffer,nBuffer);
       if(!successFlush) break;
 
     } // END OF FOR - ITERATING OVER THE CHUNKS

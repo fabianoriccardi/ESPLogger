@@ -36,6 +36,8 @@
  */
 class Logger{
   public:
+
+  typedef bool (*CallbackFlush)(const char* buffer, int n);
   
   /**
    * A brief enumaration to classify the message's severity.
@@ -80,7 +82,7 @@ class Logger{
   /**
    * Sets the callback used during the flushing.
    */
-  void setFlusherCallback(bool (*foo)(char*, int));
+  void setFlushCallback(CallbackFlush callback);
 
   /** 
    * Append a record to the target file.
@@ -159,11 +161,11 @@ class Logger{
    * containing one or more records, separated by '\0' char. The second parameter 
    * is the content's length, '\0' included.
    * 
-   * This function must a boolean: true means that the chunk was correctly 
-   * flushed; false means that there was an error, hence the chunk is preserved
-   * for the next flush, and it stops the current flushing.
+   * The return value is used to determine if the flush process should continue.
+   * True means that the chunk was correctly flushed and the process can continue;
+   * false means that there was an error, so flush process must stop.
    */
-  bool (*flusher)(char*, int);
+  CallbackFlush onFlush;
 
   bool full;
 };
