@@ -16,9 +16,9 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/fabiuz7/esp-logger-lib"
+    "url": "https://github.com/fabianoriccardi/ESP-Logger"
   },
-  "licence": "GPL-2.0-only",
+  "licence": "GPL-2.0-or-later",
   "frameworks": [
     "arduino"
   ],
