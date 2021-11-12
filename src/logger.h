@@ -110,6 +110,11 @@ class Logger{
   virtual bool flush() = 0;
 
   /**
+   * Send all to Serial. It doesn't delete any record.
+   */
+  virtual void print() = 0;
+
+  /**
    * Get actual log size.
    */
   virtual unsigned int getActualSize() = 0;

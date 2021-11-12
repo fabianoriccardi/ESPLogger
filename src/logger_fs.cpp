@@ -286,6 +286,14 @@ bool LoggerFS::flush(){
   return false;
 }
 
+void LoggerFS::print(){
+  File f = SPIFFS.open(filePath, "r");
+  while(f.available()){
+    Serial.println(f.readStringUntil('\n'));
+  }
+  f.close();
+}
+
 unsigned int LoggerFS::getActualSize(){
   if(!fs.exists(filePath)){
     return 0;

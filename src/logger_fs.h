@@ -51,6 +51,8 @@ class LoggerFS : public Logger{
   
   bool flush();
 
+  void print();
+
   unsigned int getActualSize();
 
   bool isFull();
