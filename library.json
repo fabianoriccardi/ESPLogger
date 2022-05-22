@@ -5,7 +5,7 @@
     "name": "Fabiano Riccardi",
     "email": "fabiano.riccardi@outlook.com"
   },
-  "description": "ESP Logger aims to provide an easy way to collect data. You can attach your customized callback to flush data to external endpoint.",
+  "description": "ESP Logger provides an easy way to collect data. You can attach your customized callback to flush data to external endpoint.",
   "keywords": [
     "data-collection",
     "esp8266",
@@ -16,7 +16,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/fabianoriccardi/ESP-Logger"
+    "url": "https://github.com/fabianoriccardi/esp-Logger"
   },
   "licence": "GPL-2.0-or-later",
   "frameworks": [
