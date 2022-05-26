@@ -11,31 +11,27 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.mcu }} - test compiling examples
+    name: Compile for ${{ matrix.arduino-platform }}
 
     # Target OS
     runs-on: ubuntu-20.04
 
     env:
       # Comma separated list without double quotes around the list
-      REQUIRED_LIBRARIES: ESP Logger
+      REQUIRED_LIBRARIES:
 
     strategy:
       # The Matrix contains all the configuration to be tested. For each configuration, all the examples are tested
       matrix:
 
-        # A couple of configuration for testing the library
-        mcu:
-          - esp8266
-          - esp32
-
         # define all the parameters needed to compile the sketches
         include:
 
-          # read the following block like:
-          # if in current configuration the parameter "board-type" is equal to "esp8266",
-          # add the following parameters to this configuration
-          - board-type: esp8266
+          # Explanation of the following block:
+          # If the current configuration contains the parameter "config-name" and it is equal to "esp8266-v2",
+          # add the following parameters to this configuration. If "config-name" value is never matched, 
+          # a new singular configuration is created
+          - config-name: esp8266-v2
             platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
             # You can only state specific version, no semantic version rules
             arduino-platform: esp8266:esp8266@2.7.4
@@ -44,9 +40,19 @@ jobs:
             # Type "arduino-cli board listall" to view the available boards
             arduino-boards-fqbn: esp8266:esp8266:generic
 
-          - board-type: esp32
-            platform-url: https://dl.espressif.com/dl/package_esp32_index.json
-            arduino-platform: esp32:esp32@1.0.5
+          - config-name: esp8266-v3
+            platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
+            arduino-platform: esp8266:esp8266@3.0.2
+            arduino-boards-fqbn: esp8266:esp8266:generic
+
+          - config-name: esp32-v1
+            platform-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+            arduino-platform: esp32:esp32@1.0.6
+            arduino-boards-fqbn: esp32:esp32:esp32
+
+          - config-name: esp32-v2
+            platform-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+            arduino-platform: esp32:esp32@2.0.3
             arduino-boards-fqbn: esp32:esp32:esp32
 
       # Do not cancel all jobs / architectures if one job fails
@@ -65,11 +71,8 @@ jobs:
           library-manager: update
 
       - name: Compile all examples using the arduino-test-compile action
-        uses: ArminJo/arduino-test-compile@master
+        uses: ArminJo/arduino-test-compile@v3.2.0
         with:
           arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
           arduino-platform: ${{ matrix.arduino-platform }}
           platform-url: ${{ matrix.platform-url }}
-          required-libraries: ${{ env.REQUIRED_LIBRARIES }}
-          sketches-exclude: ${{ matrix.sketches-exclude }}
-          build-properties: ${{ toJson(matrix.build-properties) }}
