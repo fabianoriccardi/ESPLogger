@@ -34,15 +34,24 @@
 /**
  * This class is responsible for a log file.
  */
-class Logger{
-  public:
+class Logger
+{
+public:
+  typedef bool (*CallbackFlush)(const char *buffer, int n);
 
-  typedef bool (*CallbackFlush)(const char* buffer, int n);
-  
   /**
    * A brief enumaration to classify the message's severity.
    */
-  enum class DebugLevel { QUIET = 0, FATAL = 1, ERROR = 2 , WARN = 3, INFO = 4, DEBUG = 5, TRACE = 6 };
+  enum class DebugLevel
+  {
+    QUIET = 0,
+    FATAL = 1,
+    ERROR = 2,
+    WARN = 3,
+    INFO = 4,
+    DEBUG = 5,
+    TRACE = 6
+  };
 
   /**
    * A function to translate the enum value to human friendly string.
@@ -53,7 +62,7 @@ class Logger{
 
   /**
    * Check the logger configuration.
-   * Return true if logger can start, false otherwise. 
+   * Return true if logger can start, false otherwise.
    */
   virtual bool begin() = 0;
 
@@ -69,7 +78,7 @@ class Logger{
 
   /**
    * Set the maximum byte that can be inserted in a single chunk.
-   * Useful when few RAM is available (remember that the data 
+   * Useful when few RAM is available (remember that the data
    * has to live in RAM for a moment before they are flushed).
    */
   void setSizeLimitPerChunk(unsigned int size);
@@ -84,26 +93,26 @@ class Logger{
    */
   void setFlushCallback(CallbackFlush callback);
 
-  /** 
+  /**
    * Append a record to the target file.
    * Return true if the record is succefully stored, otherwise false.
    * NOTE: It duplicates the record in RAM before storing it,
    *       not suitable for very large record.
    */
   bool append(String record, bool timestamp = true)
-        __attribute__((deprecated("record is duplicated, augmenting heap fragmentation: consider append(const char*, bool) that is zero-copy")));
-  
-  /** 
+      __attribute__((deprecated("record is duplicated, augmenting heap fragmentation: consider append(const char*, bool) that is zero-copy")));
+
+  /**
    * Append a record to the target file. This method is zero-copy.
    * Return true if the record is succefully stored, otherwise false.
    */
-  virtual bool append(const char* record, bool timestamp = true) = 0;
+  virtual bool append(const char *record, bool timestamp = true) = 0;
 
   /**
    * Delete the current log file.
    */
   virtual void reset() = 0;
-  
+
   /**
    * Send all the data through the callback function.
    */
@@ -126,13 +135,13 @@ class Logger{
 
   /**
    * Tell if the log is full.
-   * This value will altered only by append(), flush() or reset(). 
+   * This value will altered only by append(), flush() or reset().
    */
   virtual bool isFull() = 0;
 
   virtual ~Logger();
-  
-  protected:
+
+protected:
   String filePath;
 
   /**
@@ -163,9 +172,9 @@ class Logger{
 
   /**
    * Callback called during the flushing. The first parameter is the buffer
-   * containing one or more records, separated by '\0' char. The second parameter 
+   * containing one or more records, separated by '\0' char. The second parameter
    * is the content's length, '\0' included.
-   * 
+   *
    * The return value is used to determine if the flush process should continue.
    * True means that the chunk was correctly flushed and the process can continue;
    * false means that there was an error, so flush process must stop.

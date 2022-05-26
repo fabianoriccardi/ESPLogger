@@ -2,6 +2,6 @@
   "editor.formatOnSave": true,
   "editor.detectIndentation": true,
   "editor.rulers": [
-      100
+    100
   ]
 }

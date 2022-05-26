@@ -28,61 +28,69 @@
  ***************************************************************************/
 #include "logger.h"
 
-String Logger::translate(DebugLevel level){
-  switch(level){
-    case DebugLevel::QUIET:
-      return "QUIET";
-    case DebugLevel::FATAL:
-      return "FATAL";
-    case DebugLevel::ERROR:
-      return "ERROR";
-    case DebugLevel::WARN:
-      return "WARN";
-    case DebugLevel::INFO:
-      return "INFO";
-    case DebugLevel::DEBUG:
-      return "DEBUG";
-    case DebugLevel::TRACE:
-      return "TRACE";
-    default:
-      return "";
+String Logger::translate(DebugLevel level)
+{
+  switch (level)
+  {
+  case DebugLevel::QUIET:
+    return "QUIET";
+  case DebugLevel::FATAL:
+    return "FATAL";
+  case DebugLevel::ERROR:
+    return "ERROR";
+  case DebugLevel::WARN:
+    return "WARN";
+  case DebugLevel::INFO:
+    return "INFO";
+  case DebugLevel::DEBUG:
+    return "DEBUG";
+  case DebugLevel::TRACE:
+    return "TRACE";
+  default:
+    return "";
   }
 }
 
-bool Logger::append(String record, bool timestamp){
+bool Logger::append(String record, bool timestamp)
+{
   return append(record.c_str(), timestamp);
 }
 
-void Logger::setSizeLimit(unsigned int size, bool strict){
-  sizeLimit=size;
-  strictLimit=strict;
+void Logger::setSizeLimit(unsigned int size, bool strict)
+{
+  sizeLimit = size;
+  strictLimit = strict;
 }
 
-void Logger::setSizeLimitPerChunk(unsigned int size){
-  sizeLimitPerChunk=size;
+void Logger::setSizeLimitPerChunk(unsigned int size)
+{
+  sizeLimitPerChunk = size;
 }
 
-void Logger::setOneRecordPerChunk(bool one){
-  oneRecordPerChunk=one;
+void Logger::setOneRecordPerChunk(bool one)
+{
+  oneRecordPerChunk = one;
 }
 
-void Logger::setFlushCallback(CallbackFlush callback){
-  onFlush=callback;
+void Logger::setFlushCallback(CallbackFlush callback)
+{
+  onFlush = callback;
 }
 
-unsigned int Logger::getSizeLimit(){
-    return sizeLimit;
+unsigned int Logger::getSizeLimit()
+{
+  return sizeLimit;
 }
 
-Logger::Logger(String file, DebugLevel debugVerbosity):
-          filePath(file),
-          sizeLimit(1000),
-          strictLimit(true),
-          sizeLimitPerChunk(100),
-          oneRecordPerChunk(false),
-          debugVerbosity(debugVerbosity),
-          onFlush(nullptr),
-          full(false)
-{}
+Logger::Logger(String file, DebugLevel debugVerbosity) : filePath(file),
+                                                         sizeLimit(1000),
+                                                         strictLimit(true),
+                                                         sizeLimitPerChunk(100),
+                                                         oneRecordPerChunk(false),
+                                                         debugVerbosity(debugVerbosity),
+                                                         onFlush(nullptr),
+                                                         full(false)
+{
+}
 
-Logger::~Logger(){}
+Logger::~Logger() {}

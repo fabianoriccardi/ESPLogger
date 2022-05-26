@@ -9,7 +9,7 @@
  *
  * NOTE: the first time you run this sketch or when changing the file system
  *       layout, you should explicitly format the flash memory:
- * 
+ *
  *          SPIFFS.format()
  */
 #include <logger_fs.h>
@@ -26,40 +26,53 @@ unsigned int periodEvent = 1000;
 // Flush period, in millisecond
 unsigned int periodFlush = 20000;
 
-void event(){
+void event()
+{
   // Variable to be logged
   static int counter = 0;
   counter++;
-  
+
   Serial.printf("Hey, event ->%d<- is just happened\n", counter);
   char buffer[15];
   snprintf(buffer, 15, "value: %d", counter);
   bool success = myLogger.append(buffer);
-  if(success){
+  if (success)
+  {
     Serial.println("Event stored!");
-  }else {
-    if(myLogger.isFull()){
+  }
+  else
+  {
+    if (myLogger.isFull())
+    {
       Serial.println("Event NOT stored! You had filled the available space, flush or reset the log");
-    }else{
+    }
+    else
+    {
       Serial.println("Event NOT stored!");
     }
   }
 }
 
-void setup() {
+void setup()
+{
   Serial.begin(115200);
-  while(!Serial);
+  while (!Serial)
+    ;
   Serial.println();
   Serial.println("ESP Logger - Handle Failure");
 
   // Maybe you need to format the flash before using it
-  //SPIFFS.format();
+  // SPIFFS.format();
 
-  if(SPIFFS.begin()){
+  if (SPIFFS.begin())
+  {
     Serial.println("Filesystem mounted successfully");
-  }else{
+  }
+  else
+  {
     Serial.println("Filesystem NOT mounted. System halted");
-    while(1) delay(100);
+    while (1)
+      delay(100);
   }
 
   myLogger.setSizeLimit(200);
@@ -72,16 +85,19 @@ void setup() {
 unsigned int prevTimeFlush = 0;
 unsigned int prevTimeEvent = 0;
 
-void loop() {
+void loop()
+{
   // This loop is the logger controller, it decides
   // when it's time to flush.
-  if (millis() - prevTimeFlush > periodFlush){
+  if (millis() - prevTimeFlush > periodFlush)
+  {
     prevTimeFlush += periodFlush;
     Serial.println("Time to flush");
     myLogger.flush();
   }
 
-  if (millis() - prevTimeEvent > periodEvent){
+  if (millis() - prevTimeEvent > periodEvent)
+  {
     prevTimeEvent += periodEvent;
     event();
   }
@@ -92,30 +108,35 @@ void loop() {
  * This function simulate a random failure. When this happen, ESP Logger
  * retains the remaing log for the next flush.
  */
-bool flushHandler(const char* buffer, int n){
+bool flushHandler(const char *buffer, int n)
+{
   static int failPacketCounter = 0;
-  static int failPacket=random(3,5);
+  static int failPacket = random(3, 5);
 
   // This part is the example about the management of sending failure.
-  if(failPacketCounter==failPacket){
-    failPacket=random(3,5);
+  if (failPacketCounter == failPacket)
+  {
+    failPacket = random(3, 5);
     failPacketCounter = 0;
     Serial.println(String("Cannot send chuck. Next failure happens in: ") + failPacket + " chunks");
-    
+
     // Tell to logger that current chunk wasn't properly handled
     return false;
-  }else{
+  }
+  else
+  {
     Serial.println("Elaborate chunk:");
-    int index=0;
+    int index = 0;
     // Check if there is another string to print
-    while(index<n && strlen(&buffer[index])>0){
+    while (index < n && strlen(&buffer[index]) > 0)
+    {
       Serial.print("  ---");
-      int bytePrinted=Serial.print(&buffer[index]);
+      int bytePrinted = Serial.print(&buffer[index]);
       Serial.println("---");
       // +1, the '\0' is processed
-      index += bytePrinted+1;
+      index += bytePrinted + 1;
     }
-    
+
     failPacketCounter++;
     // Tell to logger that current chunk was properly handled
     return true;

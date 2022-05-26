@@ -36,19 +36,19 @@
 /**
  * Implementation of Logger based on FS class provided by standard Arduino APIs.
  */
-class LoggerFS : public Logger{
-  public:
-  
-  LoggerFS(FS& fs, const char* file);
-  LoggerFS(FS& fs, String file);
+class LoggerFS : public Logger
+{
+public:
+  LoggerFS(FS &fs, const char *file);
+  LoggerFS(FS &fs, String file);
 
   bool begin();
 
   using Logger::append;
-  bool append(const char* record, bool timestamp = true);
+  bool append(const char *record, bool timestamp = true);
 
   void reset();
-  
+
   bool flush();
 
   void print();
@@ -58,7 +58,7 @@ class LoggerFS : public Logger{
   bool isFull();
 
 private:
-  FS& fs;
+  FS &fs;
 };
 
 #endif // END LOGGER_SPIFFS_H

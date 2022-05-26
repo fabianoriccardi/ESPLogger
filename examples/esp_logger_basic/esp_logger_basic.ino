@@ -6,7 +6,7 @@
  *
  * NOTE: the first time you run this sketch or when changing the file system
  *       layout, you should explicitly format the flash memory:
- * 
+ *
  *          SPIFFS.format()
  */
 #include <logger_fs.h>
@@ -25,13 +25,14 @@ unsigned int periodFlush = 30000;
 
 int counter = 0;
 
-void event(){
+void event()
+{
   counter++;
-  
+
   Serial.print("Hey, event ->");
   Serial.print(counter);
   Serial.println("<- is just happened");
-  
+
   String record = String("val:") + counter;
   myLogger.append(record.c_str());
 }
@@ -39,38 +40,47 @@ void event(){
 unsigned int prevTimeFlush = 0;
 unsigned int prevTimeEvent = 0;
 
-void setup() {
+void setup()
+{
   Serial.begin(115200);
-  while(!Serial);
+  while (!Serial)
+    ;
   Serial.println();
   Serial.println("ESP Logger - Basic Example");
-  
-  // Maybe you need to format the flash before using it
-  //SPIFFS.format();
 
-  if(SPIFFS.begin()){
+  // Maybe you need to format the flash before using it
+  // SPIFFS.format();
+
+  if (SPIFFS.begin())
+  {
     Serial.println("Filesystem mounted successfully");
-  }else{
-    Serial.println("Filesystem NOT mounted. System halted");
-    while(1) delay(100);
   }
-  
+  else
+  {
+    Serial.println("Filesystem NOT mounted. System halted");
+    while (1)
+      delay(100);
+  }
+
   myLogger.setFlushCallback(flushHandler);
   myLogger.begin();
 
   Serial.println("Starting to log...");
 }
 
-void loop() {
+void loop()
+{
   // This loop is the logger controller, it decides
   // when it's time to flush.
-  if (millis() - prevTimeFlush > periodFlush){
+  if (millis() - prevTimeFlush > periodFlush)
+  {
     prevTimeFlush += periodFlush;
     Serial.println("Time to flush");
     myLogger.flush();
   }
 
-  if (millis() - prevTimeEvent > periodEvent){
+  if (millis() - prevTimeEvent > periodEvent)
+  {
     prevTimeEvent += periodEvent;
     event();
   }
@@ -80,15 +90,17 @@ void loop() {
  * Flush a chunck of logged records.
  * In this example, the records are trivially flushed on Serial.
  */
-bool flushHandler(const char* buffer, int n){
-  int index=0;
+bool flushHandler(const char *buffer, int n)
+{
+  int index = 0;
   // Check if there is another string to print
-  while(index<n && strlen(&buffer[index])>0){
+  while (index < n && strlen(&buffer[index]) > 0)
+  {
     Serial.print("---");
-    int bytePrinted=Serial.print(&buffer[index]);
+    int bytePrinted = Serial.print(&buffer[index]);
     Serial.println("---");
     // +1, the '\0' is processed
-    index += bytePrinted+1;
+    index += bytePrinted + 1;
   }
   return true;
 }
