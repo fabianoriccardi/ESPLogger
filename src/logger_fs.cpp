@@ -97,7 +97,7 @@ bool LoggerFS::append(const char* record, bool timestamp){
   }
 
   unsigned int totalFileLength = f.size();
-  if (debugVerbosity>=DebugLevel::INFO) Serial.println(String("[ESP LOGGER] ") + f.size() + "/" + sizeLimit + "bytes are already occupied");
+  if (debugVerbosity>=DebugLevel::INFO) Serial.println(String("[ESP LOGGER] ") + totalFileLength + "/" + sizeLimit + "bytes are already occupied");
   
   // if strict, calculate the file size comprising the actual record
   if(strictLimit){
@@ -172,7 +172,6 @@ bool LoggerFS::flush(){
     String line;
     char* buffer = (char*) malloc(sizeLimitPerChunk);
 
-    
     bool bufferFull = false;
     int chunkCount;
     unsigned int nBuffer;
@@ -198,7 +197,7 @@ bool LoggerFS::flush(){
           doRead=true;
         }
         
-        // l contains the number of byte required by a line (we have to keep into account the '\0')
+        // len contains the number of byte required by a line (we have to keep into account the '\0')
         // In this case, +1 isn't needed because the _line_ contains the useless '\r'
         unsigned int len=line.length();
         if(len+nBuffer>sizeLimitPerChunk){
@@ -208,8 +207,9 @@ bool LoggerFS::flush(){
           } 
           bufferFull=true;
         }else{
-          if(debugVerbosity>=DebugLevel::WARN) Serial.print(String("[ESP LOGGER] ###") + line.c_str() + "###");
-          if(debugVerbosity>=DebugLevel::WARN) Serial.println(String(" Line length: ") + line.length() + "");
+          if(debugVerbosity>=DebugLevel::WARN) Serial.println(String("[ESP LOGGER] ### Line length: ") + line.length() + "");
+          if(debugVerbosity>=DebugLevel::WARN) Serial.println(String("[ESP LOGGER] ###") + line.c_str() + "###");
+          
           // remove the last char, that is '\r'
           line=line.substring(0,line.length()-1);
           strcpy(&buffer[nBuffer], line.c_str());
