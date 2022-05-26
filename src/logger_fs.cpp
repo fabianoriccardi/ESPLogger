@@ -287,7 +287,7 @@ bool LoggerFS::flush(){
 }
 
 void LoggerFS::print(){
-  File f = SPIFFS.open(filePath, "r");
+  File f = fs.open(filePath, "r");
   while(f.available()){
     Serial.println(f.readStringUntil('\n'));
   }
