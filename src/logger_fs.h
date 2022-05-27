@@ -51,11 +51,11 @@ public:
 
   bool flush();
 
-  void print();
+  void print() const;
 
-  unsigned int getActualSize();
+  unsigned int getActualSize() const;
 
-  bool isFull();
+  bool isFull() const;
 
 private:
   FS &fs;

@@ -374,7 +374,7 @@ bool LoggerFS::flush()
   return false;
 }
 
-void LoggerFS::print()
+void LoggerFS::print() const
 {
   File f = fs.open(filePath, "r");
   while (f.available())
@@ -384,7 +384,7 @@ void LoggerFS::print()
   f.close();
 }
 
-unsigned int LoggerFS::getActualSize()
+unsigned int LoggerFS::getActualSize() const
 {
   if (!fs.exists(filePath))
   {
@@ -401,7 +401,7 @@ unsigned int LoggerFS::getActualSize()
   return result;
 }
 
-bool LoggerFS::isFull()
+bool LoggerFS::isFull() const
 {
   return full;
 }

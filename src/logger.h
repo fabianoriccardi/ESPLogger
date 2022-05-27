@@ -53,7 +53,7 @@ public:
   /**
    * A function to translate the enum value to human friendly string.
    */
-  static String translate(DebugLevel level);
+  static const char *translate(DebugLevel level);
 
   Logger(String file, DebugLevel debugVerbosity = DebugLevel::ERROR);
 
@@ -113,23 +113,23 @@ public:
   /**
    * Send all to Serial. It doesn't delete any record.
    */
-  virtual void print() = 0;
+  virtual void print() const = 0;
 
   /**
    * Get actual log size.
    */
-  virtual unsigned int getActualSize() = 0;
+  virtual unsigned int getActualSize() const = 0;
 
   /**
    * Get maximum log size.
    */
-  unsigned int getSizeLimit();
+  unsigned int getSizeLimit() const;
 
   /**
    * Tell if the log is full.
    * This value will altered only by append(), flush() or reset().
    */
-  virtual bool isFull() = 0;
+  virtual bool isFull() const = 0;
 
   virtual ~Logger();
 

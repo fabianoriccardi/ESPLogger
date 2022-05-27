@@ -28,7 +28,7 @@
  ***************************************************************************/
 #include "logger.h"
 
-String Logger::translate(DebugLevel level)
+const char *Logger::translate(DebugLevel level)
 {
   switch (level)
   {
@@ -77,7 +77,7 @@ void Logger::setFlushCallback(CallbackFlush callback)
   onFlush = callback;
 }
 
-unsigned int Logger::getSizeLimit()
+unsigned int Logger::getSizeLimit() const
 {
   return sizeLimit;
 }
