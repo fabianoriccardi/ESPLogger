@@ -51,7 +51,7 @@ String Logger::translate(DebugLevel level)
   }
 }
 
-bool Logger::append(String record, bool timestamp)
+bool Logger::append(const String &record, bool timestamp)
 {
   return append(record.c_str(), timestamp);
 }

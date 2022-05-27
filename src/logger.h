@@ -31,9 +31,6 @@
 
 #include <Arduino.h>
 
-/**
- * This class is responsible for a log file.
- */
 class Logger
 {
 public:
@@ -94,19 +91,14 @@ public:
   void setFlushCallback(CallbackFlush callback);
 
   /**
-   * Append a record to the target file.
-   * Return true if the record is succefully stored, otherwise false.
-   * NOTE: It duplicates the record in RAM before storing it,
-   *       not suitable for very large record.
    */
-  bool append(String record, bool timestamp = true)
-      __attribute__((deprecated("record is duplicated, augmenting heap fragmentation: consider append(const char*, bool) that is zero-copy")));
 
   /**
-   * Append a record to the target file. This method is zero-copy.
-   * Return true if the record is succefully stored, otherwise false.
+   * Append a record to the log file. This method is zero-copy.
+   * Return true if the record is successfully stored, otherwise false.
    */
   virtual bool append(const char *record, bool timestamp = true) = 0;
+  bool append(const String &record, bool timestamp = true);
 
   /**
    * Delete the current log file.
