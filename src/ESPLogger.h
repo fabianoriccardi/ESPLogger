@@ -1,30 +1,21 @@
 /***************************************************************************
- *   Copyright (C) 2018-2021  Fabiano Riccardi                             *
+ *   This file is part of ESPLogger, an Arduino library to ease data       *
+ *   logging on Espressif MCUs.                                            *
  *                                                                         *
- *   This file is part of ESP Logger.                                      *
+ *   Copyright (C) 2018-2022  Fabiano Riccardi                             *
  *                                                                         *
- *   ESP Logger is free software; you can redistribute                     *
- *   it and/or modify it under the terms of the GNU General Public         *
+ *   ESPLogger is free software; you can redistribute                      *
+ *   it and/or modify it under the terms of the GNU Lesser General Public  *
  *   License as published by the Free Software Foundation; either          *
- *   version 2 of the License, or (at your option) any later version.      *
+ *   version 2.1 of the License, or (at your option) any later version.    *
  *                                                                         *
- *   ESP Logger is distributed in the hope that it will be useful,         *
+ *   ESPLogger is distributed in the hope that it will be useful,          *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   As a special exception, if other files instantiate templates or use   *
- *   macros or inline functions from this file, or you compile this file   *
- *   and link it with other works to produce a work based on this file,    *
- *   this file does not by itself cause the resulting work to be covered   *
- *   by the GNU General Public License. However the source code for this   *
- *   file must still be made available in accordance with the GNU General  *
- *   Public License. This exception does not invalidate any other reasons  *
- *   why a work based on this file might be covered by the GNU General     *
- *   Public License.                                                       *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
+ *   Lesser General Public License for more details.                       *
  *                                                                         *
  *   You should have received a copy of the GNU General Public License     *
- *   along with ESP Logger; if not, see <http://www.gnu.org/licenses/>     *
+ *   along with ESPLogger; if not, see <http://www.gnu.org/licenses/>      *
  ***************************************************************************/
 #ifndef ESPLOGGER_H
 #define ESPLOGGER_H
