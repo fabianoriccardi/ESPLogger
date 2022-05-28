@@ -26,20 +26,20 @@
  *   You should have received a copy of the GNU General Public License     *
  *   along with ESP Logger; if not, see <http://www.gnu.org/licenses/>     *
  ***************************************************************************/
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef ESPLOGGER_H
+#define ESPLOGGER_H
 
 #include <FS.h>
 #include <LittleFS.h>
 
-class Logger
+class ESPLogger
 {
 public:
   typedef bool (*CallbackFlush)(const char *buffer, int n);
 
-  Logger(String file, FS &fs = LittleFS);
+  ESPLogger(String file, FS &fs = LittleFS);
 
-  virtual ~Logger(){};
+  virtual ~ESPLogger(){};
 
   /**
    * Check the logger configuration.
@@ -175,4 +175,4 @@ protected:
   static const DebugLevel debugVerbosity = DebugLevel::QUIET;
 };
 
-#endif // END LOGGER_H
+#endif // END ESPLOGGER_H

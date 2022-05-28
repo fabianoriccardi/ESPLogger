@@ -1,11 +1,11 @@
 {
-  "name": "ESP Logger",
+  "name": "ESPLogger",
   "version": "1.4.0",
   "authors": {
     "name": "Fabiano Riccardi",
     "email": "fabiano.riccardi@outlook.com"
   },
-  "description": "ESP Logger provides an easy way to collect data. You can attach your customized callback to flush data to external endpoint.",
+  "description": "ESPLogger provides an easy way to collect data. You can attach your customized callback to flush data to external endpoint.",
   "keywords": [
     "data-collection",
     "esp8266",

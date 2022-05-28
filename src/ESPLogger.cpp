@@ -1,14 +1,14 @@
 /***************************************************************************
  *   Copyright (C) 2018-2021  Fabiano Riccardi                             *
  *                                                                         *
- *   This file is part of ESP Logger.                                      *
+ *   This file is part of ESPLogger.                                      *
  *                                                                         *
- *   ESP Logger is free software; you can redistribute                     *
+ *   ESPLogger is free software; you can redistribute                     *
  *   it and/or modify it under the terms of the GNU General Public         *
  *   License as published by the Free Software Foundation; either          *
  *   version 2 of the License, or (at your option) any later version.      *
  *                                                                         *
- *   ESP Logger is distributed in the hope that it will be useful,         *
+ *   ESPLogger is distributed in the hope that it will be useful,         *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
  *   GNU General Public License for more details.                          *
@@ -24,64 +24,64 @@
  *   Public License.                                                       *
  *                                                                         *
  *   You should have received a copy of the GNU General Public License     *
- *   along with ESP Logger; if not, see <http://www.gnu.org/licenses/>     *
+ *   along with ESPLogger; if not, see <http://www.gnu.org/licenses/>     *
  ***************************************************************************/
-#include "logger.h"
+#include "ESPLogger.h"
 
-Logger::Logger(String file, FS &fs) : filePath(file),
-                                      fs(fs),
-                                      sizeLimit(1000),
-                                      strictLimit(true),
-                                      sizeLimitPerChunk(100),
-                                      oneRecordPerChunk(false),
-                                      onFlush(nullptr),
-                                      full(false)
+ESPLogger::ESPLogger(String file, FS &fs) : filePath(file),
+                                            fs(fs),
+                                            sizeLimit(1000),
+                                            strictLimit(true),
+                                            sizeLimitPerChunk(100),
+                                            oneRecordPerChunk(false),
+                                            onFlush(nullptr),
+                                            full(false)
 {
 }
 
-bool Logger::begin()
+bool ESPLogger::begin()
 {
   if (filePath.lastIndexOf('/') == 0 || fs.exists(filePath.substring(0, filePath.lastIndexOf('/'))))
   {
     return true;
   }
   if (debugVerbosity >= DebugLevel::ERROR)
-    Serial.println("[ESP LOGGER] File path to log not exist!");
+    Serial.println("[ESPLogger] File path to log not exist!");
   return false;
 }
 
-void Logger::setSizeLimit(unsigned int size, bool strict)
+void ESPLogger::setSizeLimit(unsigned int size, bool strict)
 {
   sizeLimit = size;
   strictLimit = strict;
 }
 
-unsigned int Logger::getSizeLimit() const
+unsigned int ESPLogger::getSizeLimit() const
 {
   return sizeLimit;
 }
 
-void Logger::setSizeLimitPerChunk(unsigned int size)
+void ESPLogger::setSizeLimitPerChunk(unsigned int size)
 {
   sizeLimitPerChunk = size;
 }
 
-void Logger::setOneRecordPerChunk(bool one)
+void ESPLogger::setOneRecordPerChunk(bool one)
 {
   oneRecordPerChunk = one;
 }
 
-void Logger::setFlushCallback(CallbackFlush callback)
+void ESPLogger::setFlushCallback(CallbackFlush callback)
 {
   onFlush = callback;
 }
 
-bool Logger::append(const String &record, bool timestamp)
+bool ESPLogger::append(const String &record, bool timestamp)
 {
   return append(record.c_str(), timestamp);
 }
 
-bool Logger::append(const char *record, bool timestamp)
+bool ESPLogger::append(const char *record, bool timestamp)
 {
   // Max 10 digits in an integer
   char timestampString[11] = {0};
@@ -103,7 +103,7 @@ bool Logger::append(const char *record, bool timestamp)
 
   if (debugVerbosity >= DebugLevel::INFO)
   {
-    Serial.print("[ESP LOGGER] Recording message: ___");
+    Serial.print("[ESPLogger] Recording message: ___");
     if (timestamp)
     {
       Serial.print(timestampString);
@@ -111,7 +111,7 @@ bool Logger::append(const char *record, bool timestamp)
     }
     Serial.print(record);
     Serial.println("___");
-    Serial.print("[ESP LOGGER] Record length:");
+    Serial.print("[ESPLogger] Record length:");
     Serial.println(recordLength);
   }
 
@@ -119,14 +119,14 @@ bool Logger::append(const char *record, bool timestamp)
   if (recordLength + 1 > sizeLimitPerChunk)
   {
     if (debugVerbosity >= DebugLevel::ERROR)
-      Serial.println("[ESP LOGGER] ERROR: This message is too large, it can't be sent because the limitation on chunk size, please change it before continue!!!");
+      Serial.println("[ESPLogger] ERROR: This message is too large, it can't be sent because the limitation on chunk size, please change it before continue!!!");
     return false;
   }
 
   if (recordLength > sizeLimit)
   {
     if (debugVerbosity >= DebugLevel::ERROR)
-      Serial.println("[ESP LOGGER] ERROR: This message is too large, it can't be stored because the limitation on file size, please change it before continue!!!");
+      Serial.println("[ESPLogger] ERROR: This message is too large, it can't be stored because the limitation on file size, please change it before continue!!!");
     return false;
   }
 
@@ -144,13 +144,13 @@ bool Logger::append(const char *record, bool timestamp)
   if (!f)
   {
     if (debugVerbosity >= DebugLevel::ERROR)
-      Serial.println("[ESP LOGGER] Opening log file error!");
+      Serial.println("[ESPLogger] Opening log file error!");
     return false;
   }
 
   unsigned int totalFileLength = f.size();
   if (debugVerbosity >= DebugLevel::INFO)
-    Serial.println(String("[ESP LOGGER] ") + totalFileLength + "/" + sizeLimit + "bytes are already occupied");
+    Serial.println(String("[ESPLogger] ") + totalFileLength + "/" + sizeLimit + "bytes are already occupied");
 
   // if strict, calculate the file size comprising the actual record
   if (strictLimit)
@@ -162,7 +162,7 @@ bool Logger::append(const char *record, bool timestamp)
   {
     full = true;
     if (debugVerbosity >= DebugLevel::WARN)
-      Serial.println("[ESP LOGGER] You have reached the maximum file length, the record can't be stored. Please flush the log.");
+      Serial.println("[ESPLogger] You have reached the maximum file length, the record can't be stored. Please flush the log.");
     f.close();
     return false;
   }
@@ -175,7 +175,7 @@ bool Logger::append(const char *record, bool timestamp)
   f.close();
 
   if (debugVerbosity >= DebugLevel::INFO)
-    Serial.println("[ESP LOGGER] Record properly logged");
+    Serial.println("[ESPLogger] Record properly logged");
   return true;
 }
 
@@ -204,22 +204,22 @@ static void saveRemainings(File &destination, File &source)
   }
 }
 
-bool Logger::flush()
+bool ESPLogger::flush()
 {
   if (debugVerbosity >= DebugLevel::WARN)
-    Serial.println("[ESP LOGGER] Flushing the log file...");
+    Serial.println("[ESPLogger] Flushing the log file...");
 
   if (!fs.exists(filePath))
   {
     if (debugVerbosity >= DebugLevel::WARN)
-      Serial.println("[ESP LOGGER] File doesn't exist, nothing to flush..");
+      Serial.println("[ESPLogger] File doesn't exist, nothing to flush..");
     return true;
   }
 
   if (onFlush == nullptr)
   {
     if (debugVerbosity >= DebugLevel::ERROR)
-      Serial.println("[ESP LOGGER] No Flush callback");
+      Serial.println("[ESPLogger] No Flush callback");
     return false;
   }
 
@@ -236,11 +236,11 @@ bool Logger::flush()
     for (chunkCount = 0;; chunkCount++)
     {
       if (debugVerbosity >= DebugLevel::WARN)
-        Serial.println(String("[ESP LOGGER] :::::::::::::::::::::::::::") + chunkCount);
+        Serial.println(String("[ESPLogger] :::::::::::::::::::::::::::") + chunkCount);
 
       // First step: fill the buffer with a chunk of data
       if (debugVerbosity >= DebugLevel::WARN)
-        Serial.println("[ESP LOGGER] :::::::::::::::First step: Chunk loading...");
+        Serial.println("[ESPLogger] :::::::::::::::First step: Chunk loading...");
 
       nBuffer = 0;
       bool doRead = true;
@@ -269,20 +269,20 @@ bool Logger::flush()
         if (len + nBuffer > sizeLimitPerChunk)
         {
           if (debugVerbosity >= DebugLevel::WARN)
-            Serial.println(String("[ESP LOGGER] Chunk buffer is almost full: ") + nBuffer + "/" + sizeLimitPerChunk + "byte, cannot store another message, it's time to send..");
+            Serial.println(String("[ESPLogger] Chunk buffer is almost full: ") + nBuffer + "/" + sizeLimitPerChunk + "byte, cannot store another message, it's time to send..");
           if (len > sizeLimitPerChunk)
           {
             if (debugVerbosity >= DebugLevel::ERROR)
-              Serial.println(String("[ESP LOGGER] ERROR: This message is too large (") + len + "/" + sizeLimitPerChunk + "), it can't be store in the chunk, please increase it's size");
+              Serial.println(String("[ESPLogger] ERROR: This message is too large (") + len + "/" + sizeLimitPerChunk + "), it can't be store in the chunk, please increase it's size");
           }
           bufferFull = true;
         }
         else
         {
           if (debugVerbosity >= DebugLevel::WARN)
-            Serial.println(String("[ESP LOGGER] ### Line length: ") + line.length() + "");
+            Serial.println(String("[ESPLogger] ### Line length: ") + line.length() + "");
           if (debugVerbosity >= DebugLevel::WARN)
-            Serial.println(String("[ESP LOGGER] ###") + line.c_str() + "###");
+            Serial.println(String("[ESPLogger] ###") + line.c_str() + "###");
 
           // remove the last char, that is '\r'
           line = line.substring(0, line.length() - 1);
@@ -299,13 +299,13 @@ bool Logger::flush()
       if (nBuffer == 0)
       {
         if (debugVerbosity >= DebugLevel::WARN)
-          Serial.println("[ESP LOGGER] No more data to send");
+          Serial.println("[ESPLogger] No more data to send");
         break;
       }
 
       // Second step: send chunk
       if (debugVerbosity >= DebugLevel::WARN)
-        Serial.println("[ESP LOGGER] :::::::::::::::Second step: Chunk flushing...");
+        Serial.println("[ESPLogger] :::::::::::::::Second step: Chunk flushing...");
       successFlush = onFlush(buffer, nBuffer);
       if (!successFlush)
         break;
@@ -317,7 +317,7 @@ bool Logger::flush()
       if (chunkCount > 0)
       {
         if (debugVerbosity >= DebugLevel::WARN)
-          Serial.println("[ESP LOGGER] Partial unsuccessful sending!");
+          Serial.println("[ESPLogger] Partial unsuccessful sending!");
         // I have to discard the successfully sent log, and save the remainings.
         String tempFilePath = filePath + ".temp";
         File tempFile = fs.open(tempFilePath, "w");
@@ -331,23 +331,23 @@ bool Logger::flush()
           if (fs.remove(filePath))
           {
             if (debugVerbosity >= DebugLevel::WARN)
-              Serial.println("[ESP LOGGER] The old file is deleted!");
+              Serial.println("[ESPLogger] The old file is deleted!");
             if (fs.rename(tempFilePath, filePath))
             {
               if (debugVerbosity >= DebugLevel::WARN)
-                Serial.println("[ESP LOGGER] The temp file is moved!");
+                Serial.println("[ESPLogger] The temp file is moved!");
               full = false;
             }
             else
             {
               if (debugVerbosity >= DebugLevel::ERROR)
-                Serial.println("[ESP LOGGER] The temp file wasn't moved");
+                Serial.println("[ESPLogger] The temp file wasn't moved");
             }
           }
           else
           {
             if (debugVerbosity >= DebugLevel::WARN)
-              Serial.println("[ESP LOGGER] The temp file is NOT deleted!");
+              Serial.println("[ESPLogger] The temp file is NOT deleted!");
             full = false;
           }
           // return false; //refer https://github.com/fabiuz7/esp-logger-lib/issues/5
@@ -355,14 +355,14 @@ bool Logger::flush()
         else
         {
           if (debugVerbosity >= DebugLevel::ERROR)
-            Serial.println("[ESP LOGGER] Writing temp log file error!");
+            Serial.println("[ESPLogger] Writing temp log file error!");
         }
       }
       else
       {
         // Nothing was sent, so I can close the file and exit from this function
         if (debugVerbosity >= DebugLevel::WARN)
-          Serial.println("[ESP LOGGER] Nothing was flushed..");
+          Serial.println("[ESPLogger] Nothing was flushed..");
       }
     }
     else
@@ -377,7 +377,7 @@ bool Logger::flush()
       {
         // Technically this should not happen
         if (debugVerbosity >= DebugLevel::FATAL)
-          Serial.println("[ESP LOGGER] Flush successfully completed, but I cannot remove the file...");
+          Serial.println("[ESPLogger] Flush successfully completed, but I cannot remove the file...");
       }
     }
 
@@ -388,17 +388,17 @@ bool Logger::flush()
   else
   {
     if (debugVerbosity > DebugLevel::ERROR)
-      Serial.println("[ESP LOGGER] Opening log file error!");
+      Serial.println("[ESPLogger] Opening log file error!");
   }
   if (debugVerbosity >= DebugLevel::WARN)
-    Serial.println("[ESP LOGGER] End of flushing the log file!");
+    Serial.println("[ESPLogger] End of flushing the log file!");
   return false;
 }
 
-void Logger::reset()
+void ESPLogger::reset()
 {
   if (debugVerbosity >= DebugLevel::WARN)
-    Serial.println("[ESP LOGGER] Resetting the log file...");
+    Serial.println("[ESPLogger] Resetting the log file...");
   if (fs.exists(filePath))
   {
     if (fs.remove(filePath))
@@ -412,7 +412,7 @@ void Logger::reset()
   }
 }
 
-void Logger::print() const
+void ESPLogger::print() const
 {
   File f = fs.open(filePath, "r");
   while (f.available())
@@ -422,7 +422,7 @@ void Logger::print() const
   f.close();
 }
 
-unsigned int Logger::getActualSize() const
+unsigned int ESPLogger::getActualSize() const
 {
   if (!fs.exists(filePath))
   {
@@ -439,12 +439,12 @@ unsigned int Logger::getActualSize() const
   return result;
 }
 
-bool Logger::isFull() const
+bool ESPLogger::isFull() const
 {
   return full;
 }
 
-const char *Logger::translate(DebugLevel level)
+const char *ESPLogger::translate(DebugLevel level)
 {
   switch (level)
   {

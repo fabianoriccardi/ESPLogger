@@ -9,14 +9,14 @@
  *
  *          SPIFFS.format()
  */
-#include <logger.h>
+#include <ESPLogger.h>
 #ifdef ESP32
 #include <SPIFFS.h>
 #endif
 
 // Specify the target file system and the path where the log is placed
 // NOTE: the path to log must exist!
-Logger myLogger("/data.log", SPIFFS);
+ESPLogger myLogger("/data.log", SPIFFS);
 
 // Event generation period, in millisecond
 unsigned int periodEvent = 1500;
