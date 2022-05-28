@@ -29,39 +29,23 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include <Arduino.h>
+#include <FS.h>
+#include <LittleFS.h>
 
 class Logger
 {
 public:
   typedef bool (*CallbackFlush)(const char *buffer, int n);
 
-  /**
-   * A brief enumaration to classify the message's severity.
-   */
-  enum class DebugLevel
-  {
-    QUIET = 0,
-    FATAL = 1,
-    ERROR = 2,
-    WARN = 3,
-    INFO = 4,
-    DEBUG = 5,
-    TRACE = 6
-  };
+  Logger(String file, FS &fs = LittleFS);
 
-  /**
-   * A function to translate the enum value to human friendly string.
-   */
-  static const char *translate(DebugLevel level);
-
-  Logger(String file, DebugLevel debugVerbosity = DebugLevel::ERROR);
+  virtual ~Logger(){};
 
   /**
    * Check the logger configuration.
    * Return true if logger can start, false otherwise.
    */
-  virtual bool begin() = 0;
+  virtual bool begin();
 
   /**
    * Set a limit to the log size.
@@ -72,6 +56,11 @@ public:
    * maxLogSize <= size+recordSize
    */
   void setSizeLimit(unsigned int size, bool strict = true);
+
+  /**
+   * Get maximum log size.
+   */
+  unsigned int getSizeLimit() const;
 
   /**
    * Set the maximum byte that can be inserted in a single chunk.
@@ -91,50 +80,41 @@ public:
   void setFlushCallback(CallbackFlush callback);
 
   /**
-   */
-
-  /**
    * Append a record to the log file. This method is zero-copy.
    * Return true if the record is successfully stored, otherwise false.
    */
-  virtual bool append(const char *record, bool timestamp = true) = 0;
   bool append(const String &record, bool timestamp = true);
-
-  /**
-   * Delete the current log file.
-   */
-  virtual void reset() = 0;
+  virtual bool append(const char *record, bool timestamp = true);
 
   /**
    * Send all the data through the callback function.
    */
-  virtual bool flush() = 0;
+  virtual bool flush();
+
+  /**
+   * Delete the current log file.
+   */
+  virtual void reset();
 
   /**
    * Send all to Serial. It doesn't delete any record.
    */
-  virtual void print() const = 0;
+  virtual void print() const;
 
   /**
    * Get actual log size.
    */
-  virtual unsigned int getActualSize() const = 0;
-
-  /**
-   * Get maximum log size.
-   */
-  unsigned int getSizeLimit() const;
+  virtual unsigned int getActualSize() const;
 
   /**
    * Tell if the log is full.
    * This value will altered only by append(), flush() or reset().
    */
-  virtual bool isFull() const = 0;
-
-  virtual ~Logger();
+  virtual bool isFull() const;
 
 protected:
   String filePath;
+  FS &fs;
 
   /**
    * Maximum dimension of log size. It includes the terminator chars.
@@ -158,11 +138,6 @@ protected:
   bool oneRecordPerChunk;
 
   /**
-   * Debug level.
-   */
-  DebugLevel debugVerbosity;
-
-  /**
    * Callback called during the flushing. The first parameter is the buffer
    * containing one or more records, separated by '\0' char. The second parameter
    * is the content's length, '\0' included.
@@ -174,6 +149,30 @@ protected:
   CallbackFlush onFlush;
 
   bool full;
+
+  /**
+   * A brief enumaration to classify the message's severity.
+   */
+  enum class DebugLevel
+  {
+    QUIET = 0,
+    FATAL = 1,
+    ERROR = 2,
+    WARN = 3,
+    INFO = 4,
+    DEBUG = 5,
+    TRACE = 6
+  };
+
+  /**
+   * A function to translate the enum value to human friendly string.
+   */
+  static const char *translate(DebugLevel level);
+
+  /**
+   * Debug level.
+   */
+  static const DebugLevel debugVerbosity = DebugLevel::QUIET;
 };
 
 #endif // END LOGGER_H
