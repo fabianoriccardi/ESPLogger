@@ -1,6 +1,6 @@
 # ESP Logger for Arduino IDE
 
-[![arduino-library-badge](https://www.ardu-badge.com/badge/ESP%20Logger.svg)](https://www.ardu-badge.com/badge/ESP%20Logger.svg) ![Compile Library Examples](https://github.com/fabiuz7/esp-logger-lib/actions/workflows/LibraryBuild.yml/badge.svg)
+[![arduino-library-badge](https://www.ardu-badge.com/badge/ESP%20Logger.svg)](https://www.ardu-badge.com/badge/ESP%20Logger.svg) ![Compile Library Examples](https://github.com/fabianoriccardi/ESPLogger/actions/workflows/LibraryBuild.yml/badge.svg)
 
 ESPLogger is an Arduino library offering a simple but complete interface to log events on ESP32 and ESP8266. Given the connection-oriented applications using these MCUs, ESPLogger provides a simple way to buffer data and efficiently send them through the most appropriate communication protocol.
 
@@ -13,11 +13,9 @@ For all these reasons, I have developed ESPLogger library, which is built on top
 ## Features
 
 1. Log on internal flash (using LittleFS or SPIFFS) and or on SD card
-2. Methods to monitor and limit log size
-3. Support for multiple log files to store different information
-4. Callback to flush your data over the network
-5. Full control on when and how to flush your data
-6. Agnostic to the data format, the atomic measurement unit is *Record*
+2. Monitor and limit log size
+3. Support for multiple log files
+4. Flush data when and how you need it on different channels (HTTP, Serial, ...)
 
 ## Installation
 
@@ -31,19 +29,19 @@ There are 2 main functions to be aware of: `append` and `flush`.
 
     bool append(const char* record)
 
-it creates and stores a *Record*. You cannot log data containing non-printable characters, nor new line or carriage return. Return true if the data is saved, false otherwise.
+it creates and stores a *Record*. You cannot log data containing non-printable characters, nor new line or carriage return. It returns true if the data is saved, false otherwise.
 
 ### Flush
 
     bool flush()
 
-it calls your callback function which has the following prototype:
+it calls your callback function with the following prototype:
 
-    bool flusher(char* chunk, int n);
+    bool flusher(const char* chunk, int n);
 
-where *chunk* is a buffer that contains one or more records separated by '\0' char; *n* tells how many bytes is long the chunk, including '\0'. This function must return true if the flush process has succeeded, false otherwise (e.g. the server wasn't reachable). If true is returned, the library deletes the flushed data and, if other data are available, it calls `flusher()` again, otherwise it stops. If false, the library stops the flushing process and preserves the unflushed data for the next flush().
+where *chunk* is a pointer to a buffer that contains one or more records separated by '\0' char; *n* tells how many bytes is long the chunk, including '\0's. This function should return true if the flush process succeeds, false otherwise (e.g. the server wasn't reachable). If true is returned, the library deletes the flushed data and, if other data are available, it calls `flusher()` again, otherwise it stops. If false, the library stops the flushing process and preserves the unflushed data for the next flush().
 
-This kind of packetization can be useful in various scenarios, especially when the log is very large and you cannot send everything in one shot. The maximum size of a chunk can be set at run-time through *setSizeLimitPerChunk()*.
+This kind of packetization can be useful in various scenarios, especially when the log is very large and you cannot send everything in a single shot. The maximum size of a chunk can be set at run-time through *setSizeLimitPerChunk()*.
 
 Please note that the flush() method guarantees that:
 
@@ -55,21 +53,21 @@ It returns true if flush succeeds (hence the log file is emptied), false otherwi
 
 ### File systems
 
-LoggerFS (the main class of the library) requires a file system to read and write the log. At the time of writing, there are few supported filesystems with minor differences between ESP32 and ESP8266:
+ESPLogger requires a file system to read and write the log. At the time of writing, there are few supported filesystems with minor differences between ESP32 and ESP8266:
 
-* `SPIFFS`: this is the most popular filesystem for internal flash. On ESP32, you have to `#include <SPIFFS>`.
-* `LittleFS`: this will be the replacement meant for SPIFFS since it has higher performance and directory support. You have to `#include <LittleFS.H>`.
-* `SD` (only for ESP32): the standard file system for micro SD cards on ESP32. It supports both FAT and FAT32. You have to `#include <SD.h>`. Note that in ESP8266 core, there is an `SD` class, but since it doesn't derive from `FS`, it doesn't work with ESPLogger. Actually, it is just a wrapper over SDFS, only for compatibility with older code.
-* `SDFS` (only for ESP8266): the standard file system for micro SD cards on ESP8266. It supports both FAT and FAT32. You have to `#include <SDFS.h>`.
+* `LittleFS`: the preferred file system for ESP8266 and ESP32 and the default for ESPLogger.
+* `SPIFFS`: the previous default file system before LittleFS. On ESP32, you have to `#include <SPIFFS.h>`.
+* `SDFS` (only for ESP8266): the standard file system for micro SD cards on ESP8266. It supports both FAT and FAT32. You have to `#include <SDFS.h>`. Do not use *SD* since it has an incompatible interface!
+* `SD` (only for ESP32): the standard file system for micro SD cards on ESP32. It supports both FAT and FAT32. You have to `#include <SD.h>`.
 
-Be sure that the log filepath exists before calling `begin()`. Some file systems create the necessary path when opening a file (like SPIFFS), other won't (like SD for esp32).
+Be sure that the directory tree to the log file exists before calling `begin()`. Some file systems create the necessary path when opening a file (like SPIFFS), other won't (like SD for esp32).
 
 ### Other APIs and examples
 
-You may look at the *examples* folder for working sketches and you may look at the *commented* header files (*.h) for the details.
+Look at the *examples* folder for working sketches and at the *commented* header files (*.h) for the details.
 
 ## Limitations
 
-ESPLogger is designed to log human-readable data, this means that data should be composed only by readable characters (excluding also carriage return and newline).
+ESPLogger is designed to log human-readable data, this means that data should be composed only by readable characters (excluding also carriage return (`\r`) and newline (`\n`)).
 
 Data corruption is not managed, hence there is no CRC or other integrity system to check that your log file is not altered. It assumes that the flash memory is reliable and no other code will access the log file.

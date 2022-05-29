@@ -39,7 +39,7 @@ public:
 
   /**
    * Set a limit to the log size.
-   * This is very important to avoid the memory saturation.
+   * This is very important to avoid the flash memory saturation.
    * The param strict is used to enforce the relation
    * actual maxLogSize <= size, otherwise if false, the
    * following relation is applied:
@@ -53,9 +53,10 @@ public:
   unsigned int getSizeLimit() const;
 
   /**
-   * Set the maximum byte that can be inserted in a single chunk.
-   * Useful when few RAM is available (remember that the data
-   * has to live in RAM for a moment before they are flushed).
+   * Set the maximum amount of bytes in a single chunk. If your project
+   * consume an important amount of RAM, you should reduce this value
+   * (remember that the data has to live in RAM for a moment during the
+   * flushing process).
    */
   void setSizeLimitPerChunk(unsigned int size);
 
@@ -98,7 +99,6 @@ public:
 
   /**
    * Tell if the log is full.
-   * This value will altered only by append(), flush() or reset().
    */
   virtual bool isFull() const;
 
@@ -123,7 +123,7 @@ protected:
   unsigned int sizeLimitPerChunk;
 
   /**
-   * Sets if the logger shoud prepare chunk with at most one record.
+   * Tell if the logger shoud prepare chunk with at most one record.
    */
   bool oneRecordPerChunk;
 
@@ -141,7 +141,7 @@ protected:
   bool full;
 
   /**
-   * A brief enumaration to classify the message's severity.
+   * Enumeration to classify the message's severity.
    */
   enum class DebugLevel {
     QUIET = 0,
