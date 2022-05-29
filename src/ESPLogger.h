@@ -23,8 +23,7 @@
 #include <FS.h>
 #include <LittleFS.h>
 
-class ESPLogger
-{
+class ESPLogger {
 public:
   typedef bool (*CallbackFlush)(const char *buffer, int n);
 
@@ -144,8 +143,7 @@ protected:
   /**
    * A brief enumaration to classify the message's severity.
    */
-  enum class DebugLevel
-  {
+  enum class DebugLevel {
     QUIET = 0,
     FATAL = 1,
     ERROR = 2,
@@ -166,4 +164,4 @@ protected:
   static const DebugLevel debugVerbosity = DebugLevel::QUIET;
 };
 
-#endif // END ESPLOGGER_H
+#endif  // END ESPLOGGER_H
