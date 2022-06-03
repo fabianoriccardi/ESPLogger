@@ -48,7 +48,7 @@ unsigned int ESPLogger::getSizeLimit() const {
   return sizeLimit;
 }
 
-void ESPLogger::setSizeLimitPerChunk(unsigned int size) {
+void ESPLogger::setChunkSize(unsigned int size) {
   sizeLimitPerChunk = size;
 }
 
@@ -336,7 +336,7 @@ void ESPLogger::print() const {
   f.close();
 }
 
-unsigned int ESPLogger::getActualSize() const {
+unsigned int ESPLogger::getSize() const {
   if (!fs.exists(filePath)) { return 0; }
 
   unsigned int result = 0;

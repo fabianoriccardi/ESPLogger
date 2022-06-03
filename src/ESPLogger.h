@@ -53,12 +53,10 @@ public:
   unsigned int getSizeLimit() const;
 
   /**
-   * Set the maximum amount of bytes in a single chunk. If your project
-   * consume an important amount of RAM, you should reduce this value
-   * (remember that the data has to live in RAM for a moment during the
-   * flushing process).
+   * Set the amount of bytes allocated for a chunk. If your project consumes
+   * an important amount of RAM, you may consider to reduce this value.
    */
-  void setSizeLimitPerChunk(unsigned int size);
+  void setChunkSize(unsigned int size);
 
   /**
    * Sets if the logger must prepare single-record chunks.
@@ -74,8 +72,8 @@ public:
    * Append a record to the log file. This method is zero-copy.
    * Return true if the record is successfully stored, otherwise false.
    */
-  bool append(const String &record, bool timestamp = true);
-  virtual bool append(const char *record, bool timestamp = true);
+  bool append(const String &record, bool timestamp = false);
+  virtual bool append(const char *record, bool timestamp = false);
 
   /**
    * Send all the data through the callback function.
@@ -93,9 +91,9 @@ public:
   virtual void print() const;
 
   /**
-   * Get actual log size.
+   * Get current log size.
    */
-  virtual unsigned int getActualSize() const;
+  virtual unsigned int getSize() const;
 
   /**
    * Tell if the log is full.
