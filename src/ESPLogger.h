@@ -38,12 +38,10 @@ public:
   virtual bool begin();
 
   /**
-   * Set a limit to the log size.
-   * This is very important to avoid the flash memory saturation.
-   * The param strict is used to enforce the relation
-   * actual maxLogSize <= size, otherwise if false, the
-   * following relation is applied:
-   * maxLogSize <= size+recordSize
+   * Set the limit of the log size.
+   * @param strict if true, guarantees that the current log size never exceeds the max size
+   * (e.g. currentLogSize <= size); if false, it can exceed the limit by the record size
+   * (e.g. currentLogSize <= size + recordSize)
    */
   void setSizeLimit(unsigned int size, bool strict = true);
 
@@ -86,7 +84,7 @@ public:
   virtual void reset();
 
   /**
-   * Send all to Serial. It doesn't delete any record.
+   * Print the log content on Serial port. It doesn't delete any record.
    */
   virtual void print() const;
 
@@ -115,20 +113,19 @@ protected:
   bool strictLimit;
 
   /**
-   * Physical dimension of a single chunk, in byte
-   * This limit is ALWAYS respected! It includes the terminator chars.
+   * Dimension of a chunk, in bytes.
+   * This limit is ALWAYS strict and includes the terminator chars.
    */
-  unsigned int sizeLimitPerChunk;
+  unsigned int chunkSize;
 
   /**
-   * Tell if the logger shoud prepare chunk with at most one record.
+   * Tell if the logger shoud prepare chunks with at most one record.
    */
   bool oneRecordPerChunk;
 
   /**
-   * Callback called during the flushing. The first parameter is the buffer
-   * containing one or more records, separated by '\0' char. The second parameter
-   * is the content's length, '\0' included.
+   * Callback called during the flushing. The first parameter is the chuck of records
+   * separated by '\0' char. The second parameter is the content's length, '\0' included.
    *
    * The return value is used to determine if the flush process should continue.
    * True means that the chunk was correctly flushed and the process can continue;
@@ -152,7 +149,7 @@ protected:
   };
 
   /**
-   * A function to translate the enum value to human friendly string.
+   * Translate the enum value to a human-friendly string.
    */
   static const char *translate(DebugLevel level);
 

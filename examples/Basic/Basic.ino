@@ -3,10 +3,8 @@
  * is flushed over serial port. You can see that after a few records the available space ends and
  * the logger refuses to log more records until it is flushed or reset.
  *
- * NOTE: the first time you run this sketch or when you change the file system,
- *       you should explicitly format the flash memory:
- *
- *          LittleFS.format()
+ * NOTE: you should format the flash memory the first time you run this sketch or when you switch
+ * file system. Use <YourFS>.format().
  */
 #include <ESPLogger.h>
 
@@ -33,7 +31,8 @@ void event() {
   Serial.printf("Hey, event ->%d<- is just happened\n", eventCounter);
   char record[15];
   snprintf(record, 15, "value: %d", eventCounter);
-  bool success = logger.append(record);
+  // the second parameter allows to prepend to the record the current timestamp
+  bool success = logger.append(record, true);
   if (success) {
     Serial.println("Record stored!");
   } else {
@@ -54,7 +53,7 @@ void setup() {
   Serial.println("ESPLogger - Basic example");
 
   // You may need to format the flash before using it
-  LittleFS.format();
+  // LittleFS.format();
 
   if (LittleFS.begin()) {
     Serial.println("File system mounted");

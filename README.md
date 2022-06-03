@@ -17,6 +17,10 @@ For all these reasons, I have developed ESPLogger library, which is built on top
 3. Support for multiple log files
 4. Flush data when and how you need it on different channels (HTTP, Serial, ...)
 
+## Requirements
+
+ESPLogger v2 requires Arduino-ESP8266 core version >=2.6.0 (>=2.3.0 on PIO registry) or Arduino-ESP32 core version >=2.0.0 (>=4.0.0 on PIO registry).
+
 ## Installation
 
 The latest version of ESPLogger is available on Arduino Library Manager and on [PlatformIO registry](https://platformio.org/lib/show/5879/ESP%20Logger).
@@ -39,9 +43,9 @@ it calls your callback function with the following prototype:
 
     bool flusher(const char* chunk, int n);
 
-where *chunk* is a pointer to a buffer that contains one or more records separated by '\0' char; *n* tells how many bytes is long the chunk, including '\0's. This function should return true if the flush process succeeds, false otherwise (e.g. the server wasn't reachable). If true is returned, the library deletes the flushed data and, if other data are available, it calls `flusher()` again, otherwise it stops. If false, the library stops the flushing process and preserves the unflushed data for the next flush().
+where *chunk* is a pointer to a buffer that contains one or more records separated by '\0' char; *n* tells the effective data size in the chunk buffer, including '\0's. This value is always <= `chuckSize`. This function should return true if the flush process succeeds, false otherwise (e.g. the server wasn't reachable). If true is returned, the library deletes the flushed data and, if other data are available, it calls `flusher()` again, otherwise it stops. If false, the library stops the flushing process and preserves the unflushed data for the next flush().
 
-This kind of packetization can be useful in various scenarios, especially when the log is very large and you cannot send everything in a single shot. The maximum size of a chunk can be set at run-time through *setSizeLimitPerChunk()*.
+This kind of packetization can be useful in various scenarios, especially when the log is very large and you cannot send everything in a single shot. The maximum size of a chunk can be set at run-time through `setChuckSize()`.
 
 Please note that the flush() method guarantees that:
 

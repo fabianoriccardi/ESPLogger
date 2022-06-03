@@ -25,7 +25,7 @@ ESPLogger::ESPLogger(String file, FS &fs)
     fs(fs),
     sizeLimit(1000),
     strictLimit(true),
-    sizeLimitPerChunk(100),
+    chunkSize(100),
     oneRecordPerChunk(false),
     onFlush(nullptr),
     full(false) {}
@@ -49,7 +49,7 @@ unsigned int ESPLogger::getSizeLimit() const {
 }
 
 void ESPLogger::setChunkSize(unsigned int size) {
-  sizeLimitPerChunk = size;
+  chunkSize = size;
 }
 
 void ESPLogger::setOneRecordPerChunk(bool one) {
@@ -65,7 +65,7 @@ bool ESPLogger::append(const String &record, bool timestamp) {
 }
 
 bool ESPLogger::append(const char *record, bool timestamp) {
-  // Max 10 digits in an integer
+  // Max 10 digits for a 32-bit integer
   char timestampString[11] = { 0 };
   if (timestamp) {
     unsigned int now = millis();
@@ -94,7 +94,7 @@ bool ESPLogger::append(const char *record, bool timestamp) {
   }
 
   // +1 because the terminating char of a chunk
-  if (recordLength + 1 > sizeLimitPerChunk) {
+  if (recordLength + 1 > chunkSize) {
     if (debugVerbosity >= DebugLevel::ERROR)
       Serial.println("[ESPLogger] ERROR: This message is too large, it can't be sent because the "
                      "limitation on chunk size, please change it before continue!!!");
@@ -120,14 +120,14 @@ bool ESPLogger::append(const char *record, bool timestamp) {
     return false;
   }
 
-  unsigned int totalFileLength = f.size();
+  unsigned int totalFileSize = f.size();
   if (debugVerbosity >= DebugLevel::INFO)
-    Serial.println(String("[ESPLogger] ") + totalFileLength + "/" + sizeLimit + "bytes are already occupied");
+    Serial.println(String("[ESPLogger] ") + totalFileSize + "/" + sizeLimit + "bytes are already occupied");
 
-  // if strict, calculate the file size comprising the actual record
-  if (strictLimit) { totalFileLength += recordLength; }
+  // if strict, calculate the file size including the actual record
+  if (strictLimit) { totalFileSize += recordLength; }
 
-  if (totalFileLength > sizeLimit) {
+  if (totalFileSize > sizeLimit) {
     full = true;
     if (debugVerbosity >= DebugLevel::WARN)
       Serial.println("[ESPLogger] You have reached the maximum file length, the record can't be "
@@ -185,7 +185,7 @@ bool ESPLogger::flush() {
   if (f) {
     bool successFlush = true;
     String line;
-    char *buffer = (char *)malloc(sizeLimitPerChunk);
+    char *buffer = (char *)malloc(chunkSize);
 
     bool bufferFull = false;
     int chunkCount;
@@ -217,13 +217,13 @@ bool ESPLogger::flush() {
         // len contains the number of byte required by a line (we have to keep into account the
         // '\0') In this case, +1 isn't needed because the _line_ contains the useless '\r'
         unsigned int len = line.length();
-        if (len + nBuffer > sizeLimitPerChunk) {
+        if (len + nBuffer > chunkSize) {
           if (debugVerbosity >= DebugLevel::WARN)
-            Serial.println(String("[ESPLogger] Chunk buffer is almost full: ") + nBuffer + "/" + sizeLimitPerChunk
-                           + "byte, cannot store another message, it's time to send..");
-          if (len > sizeLimitPerChunk) {
+            Serial.println(String("[ESPLogger] Chunk buffer is almost full: ") + nBuffer + "/"
+                           + chunkSize + "byte, cannot store another message, it's time to send..");
+          if (len > chunkSize) {
             if (debugVerbosity >= DebugLevel::ERROR)
-              Serial.println(String("[ESPLogger] ERROR: This message is too large (") + len + "/" + sizeLimitPerChunk
+              Serial.println(String("[ESPLogger] ERROR: This message is too large (") + len + "/" + chunkSize
                              + "), it can't be store in the chunk, please increase it's size");
           }
           bufferFull = true;
@@ -287,9 +287,7 @@ bool ESPLogger::flush() {
             full = false;
           }
           // return false; //refer https://github.com/fabiuz7/esp-logger-lib/issues/5
-        }
-        else
-        {
+        } else {
           if (debugVerbosity >= DebugLevel::ERROR)
             Serial.println("[ESPLogger] Writing temp log file error!");
         }

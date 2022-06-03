@@ -5,10 +5,8 @@
  * flushed. In this case, the library discards only the chunks marked as "flushed", freeing some
  * space on memory and preserving the not flushed record for the next attempt.
  *
- * NOTE: the first time you run this sketch or when you change the file system,
- *       you should explicitly format the flash memory:
- *
- *          LittleFS.format()
+ * NOTE: you should format the flash memory the first time you run this sketch or when you switch
+ * file system. Use <YourFS>.format().
  */
 #include <ESPLogger.h>
 
@@ -28,7 +26,8 @@ void event() {
   Serial.printf("Hey, event ->%d<- is just happened\n", counter);
   char buffer[15];
   snprintf(buffer, 15, "value: %d", counter);
-  bool success = logger.append(buffer);
+  // the second parameter allows to prepend to the record the current timestamp
+  bool success = logger.append(buffer, true);
   if (success) {
     Serial.println("Record stored!");
   } else {
@@ -48,8 +47,8 @@ void setup() {
   Serial.println();
   Serial.println("ESPLogger - Partial flush");
 
-  // Maybe you need to format the flash before using it
-  // SPIFFS.format();
+  // You may need to format the flash before using it
+  // LittleFS.format();
 
   if (LittleFS.begin()) {
     Serial.println("File system mounted");
@@ -85,8 +84,8 @@ void loop() {
 
 /**
  * Flush a chunk of records over the serial port.
- * This function simulates randomly a failure which prevents the complete flush. When this happens,
- * ESPLogger retains the remaing log for the next flush.
+ * This function simulates randomly a failure which prevents the complete flush.
+ * When this happens, ESPLogger retains the remaining log for the next flush.
  */
 bool flushHandler(const char *buffer, int n) {
   static int failPacketCounter = 0;
@@ -98,7 +97,7 @@ bool flushHandler(const char *buffer, int n) {
     failPacketCounter = 0;
     Serial.println(String("Cannot send chuck. Next failure happens in: ") + failPacket + " chunks");
 
-    // Tell to logger that current chunk wasn't properly handled
+    // Tell to the logger that current chunk wasn't properly handled
     return false;
   } else {
     Serial.println("Elaborate chunk:");
@@ -113,7 +112,7 @@ bool flushHandler(const char *buffer, int n) {
     }
 
     failPacketCounter++;
-    // Tell to logger that current chunk was properly handled
+    // Tell to the logger that current chunk was properly handled
     return true;
   }
 }
