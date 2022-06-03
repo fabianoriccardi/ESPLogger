@@ -5,7 +5,7 @@
     "name": "Fabiano Riccardi",
     "email": "fabiano.riccardi@outlook.com"
   },
-  "description": "ESPLogger provides an easy way to collect data. You can attach your customized callback to flush data to external endpoint.",
+  "description": "ESPLogger is an intuitive library to collect data on local storage and flush them to an external endpoint.",
   "keywords": [
     "data-collection",
     "esp8266",
@@ -16,7 +16,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/fabianoriccardi/esp-Logger"
+    "url": "https://github.com/fabianoriccardi/ESPLogger"
   },
   "licence": "LGPL-2.1-or-later",
   "frameworks": [
@@ -31,31 +31,17 @@
   },
   "examples": [
     {
-      "name": "esp_logger",
-      "base": "examples/esp_logger",
+      "name": "Basic",
+      "base": "examples/Basic",
       "files": [
-        "esp_logger.ino"
+        "Basic.ino"
       ]
     },
     {
-      "name": "esp_logger_avanced",
-      "base": "examples/esp_logger_advanced",
+      "name": "PartialFlush",
+      "base": "examples/PartialFlush",
       "files": [
-        "esp_logger_advanced.ino"
-      ]
-    },
-    {
-      "name": "esp_logger_runtime",
-      "base": "examples/esp_logger_runtime",
-      "files": [
-        "esp_logger_runtime.ino"
-      ]
-    },
-    {
-      "name": "esp_logger_runtime_sd",
-      "base": "examples/esp_logger_runtime_sd",
-      "files": [
-        "esp_logger_runtime_sd.ino"
+        "PartialFlush.ino"
       ]
     }
   ]

@@ -1,6 +1,6 @@
-# ESP Logger for Arduino IDE
+# ESPLogger
 
-[![arduino-library-badge](https://www.ardu-badge.com/badge/ESP%20Logger.svg)](https://www.ardu-badge.com/badge/ESP%20Logger.svg) ![Compile Library Examples](https://github.com/fabianoriccardi/ESPLogger/actions/workflows/LibraryBuild.yml/badge.svg)
+[![arduino-library-badge](https://www.ardu-badge.com/badge/ESPLogger.svg)](https://www.ardu-badge.com/badge/ESPLogger.svg) ![Compile Library Examples](https://github.com/fabianoriccardi/ESPLogger/actions/workflows/LibraryBuild.yml/badge.svg)
 
 ESPLogger is an Arduino library offering a simple but complete interface to log events on ESP32 and ESP8266. Given the connection-oriented applications using these MCUs, ESPLogger provides a simple way to buffer data and efficiently send them through the most appropriate communication protocol.
 
@@ -12,7 +12,7 @@ For all these reasons, I have developed ESPLogger library, which is built on top
 
 ## Features
 
-1. Log on internal flash (using LittleFS or SPIFFS) and or on SD card
+1. Log on internal flash (using LittleFS or SPIFFS) and/or on SD card
 2. Monitor and limit log size
 3. Support for multiple log files
 4. Flush data when and how you need it on different channels (HTTP, Serial, ...)
@@ -23,7 +23,7 @@ ESPLogger v2 requires Arduino-ESP8266 core version >=2.6.0 (>=2.3.0 on PIO regis
 
 ## Installation
 
-The latest version of ESPLogger is available on Arduino Library Manager and on [PlatformIO registry](https://platformio.org/lib/show/5879/ESP%20Logger).
+The latest version of ESPLogger is available on Arduino Library Manager and on [PlatformIO registry](https://platformio.org/lib/show/5879/ESPLogger).
 
 ## Usage
 

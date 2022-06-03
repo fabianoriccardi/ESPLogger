@@ -286,7 +286,7 @@ bool ESPLogger::flush() {
               Serial.println("[ESPLogger] The temp file is NOT deleted!");
             full = false;
           }
-          // return false; //refer https://github.com/fabiuz7/esp-logger-lib/issues/5
+          // return false; //refer https://github.com/fabianoriccardi/ESPLogger/issues/5
         } else {
           if (debugVerbosity >= DebugLevel::ERROR)
             Serial.println("[ESPLogger] Writing temp log file error!");

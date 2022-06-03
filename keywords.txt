@@ -1,17 +1,14 @@
-Logger	KEYWORD1
-LoggerSPIFFS	KEYWORD1
-LoggerSD	KEYWORD1
-LoggerRoutine	KEYWORD1
+ESPLogger	KEYWORD1
 
 begin	KEYWORD2
 setSizeLimit	KEYWORD2
-setSizeLimitPerChunk	KEYWORD2
-setOneRecordPerChunk	KEYWORD2
-setFlusherCallback	KEYWORD2
-append	KEYWORD2
-reset	KEYWORD2
-flush	KEYWORD2
-getActualSize	KEYWORD2
 getSizeLimit	KEYWORD2
-setPeriod	KEYWORD2
+setChunkSize	KEYWORD2
+setOneRecordPerChunk	KEYWORD2
+setFlushCallback	KEYWORD2
+append	KEYWORD2
+flush	KEYWORD2
+reset	KEYWORD2
+print	KEYWORD2
+getSize	KEYWORD2
 isFull	KEYWORD2
