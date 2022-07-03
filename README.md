@@ -19,7 +19,12 @@ For all these reasons, I have developed ESPLogger library, which is built on top
 
 ## Requirements
 
-ESPLogger v2 requires Arduino-ESP8266 core version >=2.6.0 (>=2.3.0 on PIO registry) or Arduino-ESP32 core version >=2.0.0 (>=4.0.0 on PIO registry).
+ESPLogger v2 is compatible with the following versions of Arduino Core (PIO Platform version between parentheses):
+
+| ESP8266           | ESP32             |
+|-------------------|-------------------|
+| ^2.6.0 (^2.3.0)   |   ^2.0.0 (^4.0.0) |
+| ^3.0.0 (^3.0.0)   |                   |
 
 ## Installation
 
