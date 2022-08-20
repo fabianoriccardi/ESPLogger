@@ -1,6 +1,6 @@
 # ESPLogger
 
-[![arduino-library-badge](https://www.ardu-badge.com/badge/ESPLogger.svg)](https://www.ardu-badge.com/badge/ESPLogger.svg) ![Compile Library Examples](https://github.com/fabianoriccardi/ESPLogger/actions/workflows/LibraryBuild.yml/badge.svg)
+[![arduino-library-badge](https://www.ardu-badge.com/badge/ESPLogger.svg)](https://www.ardu-badge.com/ESPLogger) ![Compile Library Examples](https://github.com/fabianoriccardi/ESPLogger/actions/workflows/LibraryBuild.yml/badge.svg)
 
 ESPLogger is an Arduino library offering a simple but complete interface to log events on ESP32 and ESP8266. Given the connection-oriented applications using these MCUs, ESPLogger provides a simple way to buffer data and efficiently send them through the most appropriate communication protocol.
 
